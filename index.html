@@ -1,1754 +1,1416 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Advanced Billing, Inventory & Report System with HSN</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karmī — Enterprise HR, Payroll & Attendance Software (v11)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f0f3f8; --surface:#FFFFFF; --surface-alt:#f8fafc;
+    --ink:#1e293b; --ink-muted:#64748b; --accent:#2563eb; --accent-dark:#1d4ed8;
+    --accent-bg:#eff6ff; --success:#10b981; --success-bg:#ecfdf5;
+    --danger:#ef4444; --danger-bg:#fef2f2; --warn:#f59e0b; --warn-bg:#fffbeb;
+    --border:#cbd5e1; --radius:8px; --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;margin:0;padding:0;}
+  button,input,select,textarea{font-family:inherit;font-size:inherit;}
+  
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-weight:600;transition:all .15s ease;font-size:13px;}
+  .btn:hover{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-dark);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);color:#fff;}
+  .btn-danger{background:var(--danger);border-color:var(--danger);color:#fff;}
+  .btn-danger:hover{background:#dc2626;color:#fff;}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--ink-muted);padding:5px 10px;}
+  .btn-ghost:hover{color:var(--accent);background:var(--accent-bg);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:4px 8px;font-size:12px;}
+  
+  input,select,textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;color:var(--ink);font-size:13.5px;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37, 99, 235, 0.15);}
+  label{display:block;font-size:12px;font-weight:700;color:var(--ink-muted);margin-bottom:4px;text-transform:uppercase;}
+  .field{margin-bottom:12px;}
+  
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+  .badge-present{background:var(--success-bg);color:var(--success);}
+  .badge-half{background:var(--warn-bg);color:var(--warn);}
+  .badge-absent{background:var(--danger-bg);color:var(--danger);}
+  
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:11px;color:var(--ink-muted);font-weight:700;padding:10px;border-bottom:2px solid var(--border);text-transform:uppercase;background:#f8fafc;}
+  td{padding:10px;border-bottom:1px solid #f1f5f9;font-size:13px;color:var(--ink);}
+  .table-wrap{overflow-x:auto;}
+  .empty-state{padding:30px;text-align:center;color:var(--ink-muted);font-weight:500;}
+  
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15, 23, 42, 0.6);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;}
+  .modal{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;}
+  
+  .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--ink);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;font-weight:600;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);}
+  
+  .row{display:flex;gap:12px;} .row > *{flex:1;}
+  .flex-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .muted{color:var(--ink-muted);}
 
-  <!-- PWA: installable app metadata -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4f46e5">
-  <link rel="icon" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Billing App">
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --bg-main: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #cbd5e1;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --sans: 'Segoe UI', system-ui, sans-serif;
-    }
+  .topbar{background:#1e293b;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:#fff;}
+  .brand .mark{width:28px;height:28px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;}
+  .clock{font-weight:600;color:#94a3b8;font-size:12px;background:#0f172a;padding:5px 10px;border-radius:15px;border:1px solid #334155;}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg-main); color: var(--text-main); font-family: var(--sans); padding: 15px; }
+  .shell{display:flex;min-height:calc(100vh - 53px);}
+  .sidebar{width:230px;flex-shrink:0;background:#ffffff;border-right:1px solid var(--border);padding:12px 8px;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius);color:var(--ink-muted);cursor:pointer;font-weight:600;font-size:13px;margin-bottom:3px;}
+  .nav-item:hover{background:var(--surface-alt);color:var(--ink);}
+  .nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:700;}
+  .main{flex:1;padding:20px;min-width:0;background:var(--bg);}
+  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%);}
+  
+  .checkbtn{width:100%;padding:14px;border-radius:var(--radius);border:none;cursor:pointer;font-weight:800;font-size:16px;color:#fff;margin-top:10px;}
+  .checkbtn.in{background:var(--success);}
+  .checkbtn.out{background:var(--danger);}
+  .checkbtn.done{background:var(--ink-muted);cursor:default;}
 
-    .fa-root { max-width: 1400px; margin: 0 auto; background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-
-    .sticky-top-bar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: var(--card-bg);
-      padding-top: 5px;
-      padding-bottom: 5px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
-
-    .fa-header {
-      background: linear-gradient(135deg, #4f46e5, #06b6d4); padding: 16px 20px; border-radius: 10px;
-      color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-    }
-    .fa-header h1 { font-size: 22px; font-weight: 700; }
-
-    .fa-sections { display: flex; gap: 6px; margin-bottom: 10px; background: #e2e8f0; padding: 4px; border-radius: 8px; width: fit-content; flex-wrap: wrap; }
-    .fa-section-btn { border: none; background: transparent; padding: 8px 16px; font-weight: 600; font-size: 13px; color: var(--text-muted); cursor: pointer; border-radius: 6px; }
-    .fa-section-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-    .section { display: none; }
-    .section.active { display: block; }
-
-    .fa-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
-    
-    .btn {
-      font-size: 12px; font-weight: 600; border-radius: 6px; padding: 7px 12px; border: none;
-      background: var(--primary); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-    }
-    .btn.secondary { background: #0284c7; }
-    .btn.success { background: var(--success); }
-    .btn.ghost { background: #fff; color: var(--text-main); border: 1px solid var(--border); }
-    .btn.danger { background: var(--danger); }
-    .btn.warning { background: var(--warning); color: #fff; }
-    .btn.icon { width: 26px; height: 26px; padding: 0; justify-content: center; }
-
-    .fa-table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; margin-bottom: 15px; max-height: 600px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
-    thead { display: table-header-group; }
-    thead th { background: #f1f5f9; color: #334155; font-weight: 700; padding: 8px; border: 1px solid var(--border); white-space: nowrap; }
-    tbody td { padding: 6px 8px; border: 1px solid var(--border); vertical-align: top; white-space: nowrap; }
-
-    .search-box, .field input, .field select {
-      font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: #fff; width: 100%;
-    }
-
-    .fa-add-row { display: none; background: #f0fdf4; padding: 12px; gap: 10px; flex-wrap: wrap; align-items: flex-end; border-bottom: 1px solid var(--border); }
-    .fa-add-row.open { display: flex; }
-    .field { display: flex; flex-direction: column; gap: 3px; position: relative; }
-    .field label { font-size: 10px; font-weight: 700; color: var(--text-muted); }
-
-    .bill-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-    .bill-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--primary); }
-    .cust-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    .cust-row .field { flex: 1; min-width: 200px; }
-
-    .bill-summary { margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; align-items: center; background: #f8fafc; padding: 12px; border-radius: 6px; flex-wrap: wrap; }
-    .grand-total { font-size: 18px; font-weight: 700; color: var(--primary); text-align: right; }
-
-    .report-cards { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-    .report-card { flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; background: #f1f5f9; border: 1px solid var(--border); }
-    .report-card h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-    .report-card div { font-size: 20px; font-weight: 700; color: var(--primary); }
-
-    .backup-box { background: #f8fafc; border: 1px dashed var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-
-    .logo-box { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .logo-box img#companyLogoImg { max-height: 62px; max-width: 130px; object-fit: contain; background: #fff; border-radius: 6px; padding: 5px; display: none; }
-    .logo-upload-label { cursor: pointer; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 6px 10px; border-radius: 6px; color: #fff; white-space: nowrap; }
-    .logo-upload-label:hover { background: rgba(255,255,255,0.32); }
-    .logo-actions { display: flex; gap: 6px; align-items: center; }
-    #removeLogoBtn { display: none; }
-    .invoice-logo-wrap img { max-height: 55px; max-width: 130px; object-fit: contain; }
-
-    /* LOGIN SCREEN */
-    .login-overlay {
-      position: fixed; inset: 0; z-index: 6000;
-      background: linear-gradient(135deg, #4f46e5, #06b6d4);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-    }
-    .login-card { background: #fff; border-radius: 14px; padding: 32px 26px; width: 100%; max-width: 360px; box-shadow: 0 12px 32px rgba(0,0,0,0.25); text-align: center; }
-    .login-card h2 { color: var(--primary); font-size: 20px; margin-bottom: 4px; }
-    .login-card p.login-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
-    .login-card .field { text-align: left; margin-bottom: 12px; }
-    .login-card input { font-size: 14px; padding: 10px 12px; }
-    .login-error { color: var(--danger); font-size: 12px; min-height: 16px; margin-bottom: 6px; font-weight: 600; }
-    .login-card .btn { width: 100%; padding: 11px; font-size: 14px; justify-content: center; margin-top: 4px; }
-    .fa-root.app-hidden { display: none !important; }
-
-    /* HEADER USER INFO / LOGOUT */
-    .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .user-box { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-    .user-box span { font-size: 11px; opacity: 0.9; }
-    @media print { .login-overlay { display: none !important; } }
-
-    @media print {
-      body, html { background: #fff !important; padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; }
-      body * { visibility: hidden !important; }
-
-      .sticky-top-bar { position: relative !important; box-shadow: none !important; }
-
-      #printableInvoiceCard, #printableInvoiceCard * { visibility: visible !important; }
-      #printableInvoiceCard {
-        position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; border: none !important; box-shadow: none !important;
-        overflow: visible !important; max-height: none !important;
-      }
-
-      .fa-table-wrap { max-height: none !important; overflow: visible !important; border: none !important; }
-      table { overflow: visible !important; height: auto !important; width: 100% !important; table-layout: auto !important; }
-      
-      thead { display: table-header-group !important; }
-      tr { page-break-inside: avoid !important; }
-      
-      body.printing-report #printableInvoiceCard, body.printing-report #printableInvoiceCard * { visibility: hidden !important; }
-      body.printing-report #reportPrintArea, body.printing-report #reportPrintArea * { visibility: visible !important; }
-      body.printing-report #reportPrintArea { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; }
-
-      .no-print, .remove-line, #addLineBtn, .fa-header, .fa-sections { display: none !important; }
-      th.no-print, td.no-print { display: none !important; }
-      input { border: none !important; background: transparent !important; color: #000 !important; font-size: 12px !important; width: auto !important; }
-    }
-  </style>
+  .dash-header-card{background:linear-gradient(135deg, #1e293b 0%, #334155 100%);color:#fff;padding:22px;border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);margin-bottom:16px;}
+  .stat-card-box{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow);flex:1;}
+  .stat-card-box .title{font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;margin-bottom:4px;}
+  .stat-card-box .val{font-size:22px;font-weight:800;color:var(--accent);}
+  .dept-tile{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;flex:1;box-shadow:var(--shadow);border-top:4px solid var(--accent);}
+  
+  @media print{ .topbar,.sidebar,.no-print{display:none !important;} .main{padding:0;background:#fff;} body{background:#fff;} .panel{box-shadow:none;border:none;} }
+</style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN (shown until a valid user logs in) -->
-<div class="login-overlay no-print" id="loginOverlay">
-  <div class="login-card">
-    <h2>🔒 Billing App Login</h2>
-    <p class="login-sub">Access karne ke liye apna username aur password daalein</p>
-    <div class="login-error" id="loginError"></div>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
-    </div>
-    <button class="btn success" id="loginSubmitBtn">Login</button>
-  </div>
-</div>
-
-<div class="fa-root app-hidden" id="appRoot">
-  <div class="sticky-top-bar no-print">
-    <div class="fa-header">
-      <div>
-        <h1>⚡ Billing, Inventory & Report System</h1>
-        <span style="font-size:12px; opacity:0.9;">📍 Address: Bhatagaon_Raipur | 📞 Mobile: 9303786906</span>
-      </div>
-      <div class="header-right">
-        <div class="logo-box">
-          <img id="companyLogoImg" src="" alt="Company Logo">
-          <div class="logo-actions">
-            <label for="companyLogoInput" class="logo-upload-label" id="logoUploadLabel">📷 Logo Add Karein</label>
-            <input type="file" id="companyLogoInput" accept="image/*" style="display:none;">
-            <button class="btn icon danger" id="removeLogoBtn" title="Logo Hatayein">✕</button>
-          </div>
-        </div>
-        <div class="user-box">
-          <span>👤 <span id="loggedInUserDisplay"></span></span>
-          <button class="btn danger" id="logoutBtn">🚪 Logout</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="fa-sections">
-      <button class="fa-section-btn active" data-section="billing">बिलिंग (Billing)</button>
-      <button class="fa-section-btn" data-section="customers">👤 ग्राहक (Customers)</button>
-      <button class="fa-section-btn" data-section="inventory">इन्वेंटरी (Inventory)</button>
-      <button class="fa-section-btn" data-section="purchase">➕ Purchase (Add Stock)</button>
-      <button class="fa-section-btn" data-section="reports">📊 Reports (Sale & Purchase)</button>
-      <button class="fa-section-btn" data-section="users">🔑 Users (Login)</button>
-      <button class="fa-section-btn" data-section="json-backup">💾 Backup & Restore</button>
-    </div>
-  </div>
-
-  <!-- 1. BILLING SECTION -->
-  <div class="section active" id="section-billing">
-    <div class="bill-card" id="printableInvoiceCard">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div class="invoice-logo-wrap">
-          <img id="invoiceLogoImg" src="" alt="Logo" style="display:none;">
-        </div>
-        <h3>Tax Invoice</h3>
-        <span style="font-weight: bold; color: var(--primary);">Bill No: <span id="currentBillNoDisplay">101</span></span>
-      </div>
-
-      <div class="cust-row">
-        <div class="field">
-          <label>1. Mobile Number (Type/Search)</label>
-          <input type="text" id="custMobile" list="customerMobileOptions" placeholder="Enter Mobile Number">
-        </div>
-        <div class="field">
-          <label>2. Customer Name</label>
-          <input type="text" id="custName" list="customerNameOptions" placeholder="Customer Name">
-        </div>
-        <div class="field">
-          <label>3. Customer Code</label>
-          <input type="text" id="custCode" placeholder="Code">
-        </div>
-      </div>
-
-      <div class="fa-table-wrap" style="max-height: none;">
-        <table>
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th style="width:90px;">HSN Code</th>
-              <th style="width:70px;" class="no-print">Stock</th>
-              <th style="width:70px;">Qty</th>
-              <th style="width:100px;">Rate (₹)</th>
-              <th style="width:100px;">Total (₹)</th>
-              <th class="no-print" style="width:30px;"></th>
-            </tr>
-          </thead>
-          <tbody id="billLinesBody"></tbody>
-        </table>
-      </div>
-      <datalist id="itemNameOptions"></datalist>
-
-      <button class="btn ghost no-print" id="addLineBtn" style="margin-top: 8px;">+ Item Add Karein</button>
-
-      <div class="cust-row" style="margin-top: 10px; justify-content: flex-end;">
-        <div class="field" style="flex:unset;"><label>Sub Total</label><input type="text" id="billSubTotal" value="0.00" readonly style="font-weight:bold; background:#f1f5f9;"></div>
-        <div class="field" style="flex:unset;"><label>Discount (%)</label><input type="number" id="billDiscount" value="0"></div>
-        <div class="field" style="flex:unset;"><label>GST (%)</label><input type="number" id="billGst" value="0"></div>
-      </div>
-
-      <div class="bill-summary">
-        <div>
-          <button class="btn danger no-print" id="clearBillBtn">🧹 Clear / New Bill</button>
-        </div>
-        <div style="display:flex; align-items:center; gap:15px;">
-          <div class="grand-total">Net Payable (Grand Total): ₹<span id="grandTotalVal">0.00</span></div>
-          <button class="btn success no-print" id="saveBillBtn">💾 Save & Print Bill</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="bill-card no-print">
-      <h3>Billing History</h3>
-      <div class="fa-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Bill No</th><th>Date</th><th>Mobile</th><th>Cust Code</th><th>Customer Name</th><th>Total Amount</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="billsHistoryBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. CUSTOMERS SECTION -->
-  <div class="section" id="section-customers">
-    <div class="bill-card" style="margin-bottom:12px;">
-      <h3>📥 Customer Bulk CSV Upload & Export</h3>
-      <div class="cust-row" style="margin-bottom:0; align-items: center;">
-        <input type="file" id="custCsvInput" accept=".csv" class="search-box">
-        <button class="btn secondary" id="uploadCustCsvBtn">Upload Customers CSV</button>
-        <button class="btn success" id="exportCustCsvBtn">📥 Export Excel/CSV</button>
-      </div>
-    </div>
-
-    <div class="fa-controls">
-      <input type="text" class="search-box" id="custSearch" placeholder="Mobile, Name ya Code khojen...">
-      <div>
-        <button class="btn danger" id="deleteSelectedCustBtn">🗑️ Delete Selected</button>
-        <button class="btn success" id="toggleAddCustBtn">+ Naya Customer Add Karein</button>
-      </div>
-    </div>
-
-    <div class="fa-table-wrap">
-      <div class="fa-add-row" id="addCustRow">
-        <input type="hidden" id="editCustId">
-        <div class="field"><label>Mobile Number</label><input type="text" id="newCustMobile" placeholder="9876543210"></div>
-        <div class="field"><label>Customer Name</label><input type="text" id="newCustName" placeholder="Full Name"></div>
-        <div class="field"><label>Customer Code</label><input type="text" id="newCustCode" placeholder="C101"></div>
-        <div class="field"><label>Address / Branch</label><input type="text" id="newCustAddress" placeholder="Location / Branch"></div>
-        <button class="btn success" id="saveCustBtn">Save Customer</button>
-        <button class="btn ghost" id="cancelCustBtn">Cancel</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:30px;"><input type="checkbox" id="selectAllCust"></th>
-            <th>S.No</th><th>Mobile Number</th><th>Customer Name</th><th>Code</th><th>Address / Branch</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="customersTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 3. INVENTORY SECTION -->
-  <div class="section" id="section-inventory">
-    <div class="bill-card" style="margin-bottom:12px;">
-      <h3>📥 Inventory Bulk CSV Upload</h3>
-      <div class="cust-row" style="margin-bottom:0; align-items: center;">
-        <input type="file" id="inventoryCsvInput" accept=".csv" class="search-box">
-        <button class="btn secondary" id="uploadInventoryCsvBtn">Upload Inventory CSV</button>
-      </div>
-    </div>
-
-    <div class="fa-controls">
-      <input type="text" class="search-box" id="itemSearch" placeholder="Item, HSN ya P code khojen...">
-      <button class="btn success" id="toggleAddBtn">+ Naya Item Banayein</button>
-    </div>
-
-    <div class="fa-table-wrap">
-      <div class="fa-add-row" id="addRow">
-        <input type="hidden" id="editItemId">
-        <div class="field"><label>P Code</label><input type="text" id="newPcode" placeholder="RPR001"></div>
-        <div class="field"><label>Item Name</label><input type="text" id="newName" placeholder="Item Name"></div>
-        <div class="field"><label>HSN Code</label><input type="text" id="newHsn" placeholder="HSN Code"></div>
-        <div class="field"><label>Category</label><input type="text" id="newCategory" placeholder="Category"></div>
-        <div class="field"><label>Unit</label><input type="text" id="newUnit" placeholder="Pcs/Nos"></div>
-        <div class="field"><label>Opening Qty</label><input type="number" id="newOpening" placeholder="0"></div>
-        <div class="field"><label>MRP (₹)</label><input type="number" id="newMrp" placeholder="0.00"></div>
-        <div class="field"><label>Purchase Price (₹)</label><input type="number" id="newPurchasePrice" placeholder="0.00"></div>
-        <div class="field"><label>Sale Price (₹)</label><input type="number" id="newSellPrice" placeholder="0.00"></div>
-        <div class="field"><label>Expiry Date</label><input type="text" id="newExpiry" placeholder="01-08-2027"></div>
-        <button class="btn success" id="saveNewBtn">Save Item</button>
-        <button class="btn ghost" id="cancelNewBtn">Cancel</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>S.No</th><th>P code</th><th>Item Name</th><th>HSN Code</th><th>Category</th><th>Unit</th><th>Opening Qty</th><th>Balance Qty</th><th>MRP</th><th>Purchase Price</th><th>Sale Price</th><th>Expiry Date</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="inventoryTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 4. PURCHASE SECTION -->
-  <div class="section" id="section-purchase">
-    <div class="bill-card" style="margin-bottom:12px;">
-      <h3>📥 Purchase Bulk CSV Upload</h3>
-      <div class="cust-row" style="margin-bottom:0; align-items: center;">
-        <input type="file" id="purchaseCsvInput" accept=".csv" class="search-box">
-        <button class="btn secondary" id="uploadPurchaseCsvBtn">Upload Purchase CSV</button>
-      </div>
-    </div>
-
-    <div class="bill-card">
-      <h3>➕ Purchase / Stock Entry</h3>
-      <div class="cust-row" style="align-items: flex-end;">
-        <div class="field" style="flex:1;">
-          <label>Select Item Name</label>
-          <input type="text" id="purchaseItemInput" list="itemNameOptions" placeholder="Item Name Select/Type Karein...">
-        </div>
-        <div class="field"><label>Purchased Quantity</label><input type="number" id="purchaseQtyInput" placeholder="0"></div>
-        <div class="field"><label>Purchase Price (₹)</label><input type="number" id="purchasePriceInput" placeholder="0.00"></div>
-        <button class="btn success" id="addPurchaseStockBtn" style="height:31px;">+ Add Stock & Save</button>
-      </div>
-    </div>
-
-    <div class="bill-card">
-      <h3>Purchase History</h3>
-      <div class="fa-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th><th>Item Name</th><th>Qty Added</th><th>Purchase Rate</th><th>Total Cost</th>
-            </tr>
-          </thead>
-          <tbody id="purchaseHistoryBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. REPORTS SECTION -->
-  <div class="section" id="section-reports">
-    <div class="bill-card" id="reportPrintArea">
-      <h3>📊 Sales & Purchase Reports</h3>
-      <div class="cust-row no-print" style="align-items: flex-end; margin-bottom:15px;">
-        <div class="field"><label>From Date</label><input type="date" id="reportFromDate"></div>
-        <div class="field"><label>To Date</label><input type="date" id="reportToDate"></div>
-        <button class="btn secondary" id="filterReportBtn" style="height:31px;">🔍 Filter Reports</button>
-        <button class="btn warning" id="printReportBtn" style="height:31px;">🖨️ Export PDF / Print</button>
-        <button class="btn success" id="exportDetailedExcelBtn" style="height:31px;">📥 Export Detailed Sales SKU</button>
-        <button class="btn success" id="exportPurchaseReportBtn" style="height:31px;">📥 Export Purchase CSV</button>
-      </div>
-
-      <div class="report-cards">
-        <div class="report-card">
-          <h4>TOTAL SALES</h4>
-          <div id="reportTotalSales">₹0.00</div>
-        </div>
-        <div class="report-card">
-          <h4>TOTAL PURCHASES</h4>
-          <div id="reportTotalPurchase" style="color:var(--warning);">₹0.00</div>
-        </div>
-        <div class="report-card">
-          <h4>NET PROFIT</h4>
-          <div id="reportNetProfit" style="color:var(--success);">₹0.00</div>
-        </div>
-      </div>
-
-      <h4 style="margin: 15px 0 8px 0;">Filtered Sales History</h4>
-      <div class="fa-table-wrap" style="margin-bottom:15px;">
-        <table>
-          <thead>
-            <tr><th>Bill No</th><th>Date</th><th>Customer</th><th>Total (₹)</th></tr>
-          </thead>
-          <tbody id="reportSalesBody"></tbody>
-        </table>
-      </div>
-
-      <h4 style="margin: 15px 0 8px 0;">Filtered Purchase History</h4>
-      <div class="fa-table-wrap">
-        <table>
-          <thead>
-            <tr><th>Date</th><th>Item Name</th><th>Qty</th><th>Rate</th><th>Total Cost (₹)</th></tr>
-          </thead>
-          <tbody id="reportPurchaseBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 6. USERS (LOGIN) SECTION -->
-  <div class="section" id="section-users">
-    <div class="fa-controls">
-      <div style="font-size:12px; color:var(--text-muted);">Yahan se aap naye login users bana sakte hain aur unke password reset/delete kar sakte hain.</div>
-      <button class="btn success" id="toggleAddUserBtn">+ Naya User Banayein</button>
-    </div>
-
-    <div class="fa-table-wrap">
-      <div class="fa-add-row" id="addUserRow">
-        <input type="hidden" id="editUserId">
-        <div class="field"><label>Username</label><input type="text" id="newUserName" placeholder="jaise: employee1"></div>
-        <div class="field"><label>Password</label><input type="password" id="newUserPassword" placeholder="Password" autocomplete="new-password"></div>
-        <div class="field"><label>Confirm Password</label><input type="password" id="newUserConfirmPassword" placeholder="Password dobara" autocomplete="new-password"></div>
-        <button class="btn success" id="saveUserBtn">Save User</button>
-        <button class="btn ghost" id="cancelUserBtn">Cancel</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr><th>S.No</th><th>Username</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="usersTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 7. JSON BACKUP TAB -->
-  <div class="section" id="section-json-backup">
-    <div class="bill-card">
-      <h3>💾 Full System Backup & Restore</h3>
-      <div class="backup-box">
-        <h4 style="margin-bottom:8px;">1. Full System Backup Download Karein</h4>
-        <button class="btn success" id="downloadFullBackupJsonBtn">📥 Download Backup (.json)</button>
-      </div>
-
-      <div class="backup-box">
-        <h4 style="margin-bottom:8px;">2. JSON Backup Restore Karein</h4>
-        <div class="cust-row" style="margin-bottom:0; align-items:center;">
-          <input type="file" id="restoreJsonFileInput" accept=".json" class="search-box">
-          <button class="btn danger" id="restoreFullBackupJsonBtn">⚠️ Restore System Backup</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
+<div id="app"><div style="padding:40px;text-align:center;color:#64748b;">System Initializing...</div></div>
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-(function(){
-  const INVENTORY_STORAGE_KEY = 'my_billing_inventory_v13';
-  const BILLS_STORAGE_KEY = 'my_billing_bills_v13';
-  const CUSTOMERS_STORAGE_KEY = 'my_billing_customers_v13';
-  const PURCHASES_STORAGE_KEY = 'my_billing_purchases_v13';
-  const LAST_BILL_NO_KEY = 'my_billing_last_bill_no_v13';
-  const LOGO_STORAGE_KEY = 'my_billing_company_logo_v13';
-  const USERS_STORAGE_KEY = 'my_billing_users_v13';
-  const LOGGED_IN_USER_KEY = 'my_billing_logged_in_user_v13';
+let state = {
+  employees: [], attendance: [], requests: [], loans: [], regularizations: [], shifts: [], weekoffs: [], salarySlips: [],
+  settings: { companyName:'TOUCHSTONE SERVICES PVT. LTD.', currency:'₹' },
+  session: null, adminPage: 'dashboard', managerPage: 'dashboard', empPage: 'dashboard', loaded: false
+};
 
-  let items = [];
-  let bills = [];
-  let customers = [];
-  let purchases = [];
-  let currentBillNo = 101;
-  let companyLogo = '';
-  let users = [];
-  let loggedInUser = null;
+function getKey(k){ try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;} }
+function setKey(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
 
-  function loadDataFromStorage() {
+function initData(){
+  state.employees = getKey('ts_emp_v11') || [
+    { id:'EMP001', name:'Admin Director', pass:'1234', role:'admin', department:'Management', designation:'Director', managerId:'', status:'Active', salary:{basic:40000, hra:16000, education:2000, market:3000, conveyance:1600, bonus:3332, compPfAdmin:500, compPf:1800, compEsic:0, tds:2000, insurance:500, lwf:200, empPf:1800, empEsic:0} },
+    { id:'EMP002', name:'Rahul Manager', pass:'1234', role:'manager', department:'Engineering', designation:'Engineering Manager', managerId:'EMP001', status:'Active', salary:{basic:30000, hra:12000, education:1500, market:2000, conveyance:1600, bonus:2500, compPfAdmin:400, compPf:1800, compEsic:0, tds:1200, insurance:400, lwf:200, empPf:1800, empEsic:0} },
+    { id:'EMP003', name:'Amit Developer', pass:'1234', role:'employee', department:'Engineering', designation:'Software Dev', managerId:'EMP002', status:'Active', salary:{basic:22000, hra:8800, education:1000, market:1500, conveyance:1600, bonus:1833, compPfAdmin:300, compPf:1800, compEsic:0, tds:500, insurance:300, lwf:200, empPf:1800, empEsic:0} }
+  ];
+  state.attendance = getKey('ts_att_v11') || [];
+  state.requests = getKey('ts_req_v11') || [];
+  state.loans = getKey('ts_loan_v11') || [];
+  state.regularizations = getKey('ts_reg_v11') || [];
+  state.shifts = getKey('ts_shift_v11') || [];
+  state.weekoffs = getKey('ts_weekoff_v11') || [];
+  state.salarySlips = getKey('ts_sal_slips_v11') || [];
+  state.session = getKey('ts_sess_v11');
+  state.loaded = true;
+}
+
+function saveAll(){
+  setKey('ts_emp_v11', state.employees);
+  setKey('ts_att_v11', state.attendance);
+  setKey('ts_req_v11', state.requests);
+  setKey('ts_loan_v11', state.loans);
+  setKey('ts_reg_v11', state.regularizations);
+  setKey('ts_shift_v11', state.shifts);
+  setKey('ts_weekoff_v11', state.weekoffs);
+  setKey('ts_sal_slips_v11', state.salarySlips);
+}
+
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function toast(msg){
+  const wrap = document.getElementById('toastWrap'); if(!wrap) return;
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  wrap.appendChild(t); setTimeout(()=>t.remove(), 3000);
+}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function monthStr(){ return new Date().toISOString().slice(0,7); }
+function fmtTime(iso){ if(!iso)return'—'; return new Date(iso).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(s){ return s ? new Date(s+'T00:00:00').toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'}) : '—'; }
+function fmtMoney(n){ return state.settings.currency + ' ' + Number(n||0).toLocaleString('en-IN'); }
+function empName(id){ const e=state.employees.find(x=>x.id===id); return e?e.name:'—'; }
+
+function calcAttendanceStatus(checkIn, checkOut){
+  if(!checkIn) return 'Absent';
+  if(!checkOut) return 'Present';
+  const diffMs = new Date(checkOut) - new Date(checkIn);
+  const diffHours = diffMs / (1000 * 60 * 60);
+  if(diffHours >= 9){
+    return 'Present';
+  } else if(diffHours >= 4.5){
+    return 'Half Day';
+  } else {
+    return 'Half Day';
+  }
+}
+
+function calcSalary(sal){
+  const basic = Number(sal?.basic)||20000;
+  const hra = Number(sal?.hra)||Math.round(basic*0.40);
+  const education = Number(sal?.education)||0;
+  const market = Number(sal?.market)||0;
+  const conveyance = Number(sal?.conveyance)||0;
+  const bonus = Number(sal?.bonus)||Math.round(basic*0.0833);
+  const compPfAdmin = Number(sal?.compPfAdmin)||0;
+  const compPf = Number(sal?.compPf)||0;
+  const compEsic = Number(sal?.compEsic)||0;
+
+  const gross = basic + hra + education + market + conveyance + bonus + compPfAdmin + compPf + compEsic;
+
+  const tds = Number(sal?.tds)||0;
+  const insurance = Number(sal?.insurance)||0;
+  const lwf = Number(sal?.lwf)||0;
+  const empPf = Number(sal?.empPf)||Math.min(Math.round(basic * 0.12), 1800);
+  const empEsic = Number(sal?.empEsic)||0;
+
+  const totalDed = tds + insurance + lwf + empPf + empEsic;
+
+  return { 
+    basic, hra, education, market, conveyance, bonus, compPfAdmin, compPf, compEsic, gross, 
+    tds, insurance, lwf, empPf, empEsic, totalDed 
+  };
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(!state.loaded) return;
+  if(!state.session){ app.innerHTML = renderAuth(); }
+  else {
+    const user = state.employees.find(x=>x.id===state.session.employeeId);
+    if(!user || user.status === 'Left'){ doLogout(); toast('Your account is inactive or marked as left.'); return; }
+    if(user.role==='admin') app.innerHTML = renderAdminShell(user);
+    else if(user.role==='manager') app.innerHTML = renderManagerShell(user);
+    else app.innerHTML = renderEmpShell(user);
+  }
+  attachEvents();
+}
+
+function renderAuth(){
+  return `
+    <div class="auth-wrap">
+      <div style="width:100%;max-width:400px;">
+        <div class="panel" style="padding:24px;">
+          <div class="brand" style="color:#1e293b;margin-bottom:20px;font-size:16px;">
+            <div class="mark">T</div>${state.settings.companyName}
+          </div>
+          <div style="margin-bottom:16px;background:#f8fafc;padding:10px;border-radius:6px;border:1px solid #e2e8f0;font-size:12px;">
+            <strong>Login Credentials Guide:</strong><br>  
+          </div>
+          <div class="field">
+            <label>Employee ID</label>
+            <input type="text" id="l_id" placeholder="Enter Employee ID (e.g. EMP001)" style="text-transform:uppercase;">
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="l_pass" placeholder="Enter Password" value="1234">
+          </div>
+          <button class="btn btn-primary btn-block" data-act="login" style="margin-top:10px;padding:10px;">Login to System</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function doLogin(){
+  const idInput = (document.getElementById('l_id')?.value || '').trim();
+  const passInput = (document.getElementById('l_pass')?.value || '').trim();
+  if(!idInput){ toast('Please enter your Employee ID'); return; }
+  const emp = state.employees.find(x=>x.id.toLowerCase()===idInput.toLowerCase() && x.pass===passInput);
+  if(!emp){ toast('Invalid Employee ID or Password'); return; }
+  if(emp.status === 'Left'){ toast('This account is marked as Left/Inactive.'); return; }
+  state.session = { role: emp.role, employeeId: emp.id };
+  setKey('ts_sess_v11', state.session);
+  toast('Welcome back, ' + emp.name); render();
+}
+
+function doLogout(){ state.session=null; setKey('ts_sess_v11',null); render(); }
+
+const EMP_NAV = [
+  {key:'dashboard', label:'Check-In / Out (GPS)'},
+  {key:'attendance', label:'My Attendance'},
+  {key:'regularize', label:'Attendance Regularize'},
+  {key:'leaves', label:'Leave Applications'},
+  {key:'loans', label:'Loan & Advance'},
+  {key:'payslip', label:'Salary Payslip'}
+];
+
+function renderEmpShell(emp){
+  let content = '';
+  if(state.empPage==='dashboard') content = renderEmpDash(emp);
+  else if(state.empPage==='attendance') content = renderEmpAtt(emp);
+  else if(state.empPage==='regularize') content = renderEmpReg(emp);
+  else if(state.empPage==='leaves') content = renderEmpLeaves(emp);
+  else if(state.empPage==='loans') content = renderEmpLoans(emp);
+  else if(state.empPage==='payslip') content = renderEmpPayslip(emp, window.selectedEmpPayslipMonth || monthStr());
+
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="mark">T</div>${state.settings.companyName} — Employee</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="clock" id="liveClock"></div>
+        <span style="font-weight:600;font-size:13px;">${emp.name} (${emp.id})</span>
+        <button class="btn btn-sm btn-danger" data-act="logout">Logout</button>
+      </div>
+    </div>
+    <div class="shell">
+      <div class="sidebar">${EMP_NAV.map(n=>`<div class="nav-item ${state.empPage===n.key?'active':''}" data-enav="${n.key}">${n.label}</div>`).join('')}</div>
+      <div class="main">${content}</div>
+    </div>
+  `;
+}
+
+function renderEmpDash(emp){
+  const today = todayStr();
+  const rec = state.attendance.find(a=>a.employeeId===emp.id && a.date===today);
+  let btnHtml = '';
+  if(!rec) btnHtml = `<button class="checkbtn in" data-act="checkin">Check In with GPS Location</button>`;
+  else if(!rec.checkOut) btnHtml = `<button class="checkbtn out" data-act="checkout">Check Out Now</button>`;
+  else btnHtml = `<button class="checkbtn done" disabled>Shift Completed for Today</button>`;
+
+  return `
+    <div style="max-width:480px;margin:20px auto;">
+      <h3 style="margin-bottom:12px;">Welcome, ${emp.name}</h3>
+      <div class="panel" style="text-align:center;">
+        <div style="font-size:32px;font-weight:800;margin-bottom:4px;" id="dashTime">--:--:--</div>
+        <div class="muted" style="margin-bottom:14px;">${new Date().toLocaleDateString('en-US',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div>
+        ${btnHtml}
+        <div class="status-line" style="margin-top:14px;font-size:13px;">
+          ${rec ? `Check-In: <strong>${fmtTime(rec.checkIn)}</strong><br>📍 Location: <strong>${rec.location || 'Raipur'}</strong><br>${rec.checkOut?`Check-Out: <strong>${fmtTime(rec.checkOut)}</strong><br>Status: <span class="badge ${rec.status==='Present'?'badge-present':'badge-half'}">${rec.status}</span>`:''}` : 'Not checked in yet today.'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderEmpAtt(emp){
+  const recs = state.attendance.filter(a=>a.employeeId===emp.id).sort((a,b)=>b.date.localeCompare(a.date));
+  return `
+    <h3 style="margin-bottom:14px;">My Attendance Records</h3>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody>${recs.map(r=>{
+        const calculatedStatus = calcAttendanceStatus(r.checkIn, r.checkOut);
+        return `<tr><td>${fmtDate(r.date)}</td><td>${fmtTime(r.checkIn)}</td><td>${fmtTime(r.checkOut)}</td><td><small>📍 ${r.location || 'Raipur'}</small></td><td><span class="badge ${calculatedStatus==='Present'?'badge-present':'badge-half'}">${calculatedStatus}</span></td></tr>`;
+      }).join('') || '<tr><td colspan="5"><div class="empty-state">No attendance records</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+}
+
+function renderEmpReg(emp){
+  const myRegs = state.regularizations.filter(r=>r.employeeId===emp.id);
+  return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Attendance Regularization</h3>
+      <button class="btn btn-primary" data-act="openRegModal">+ Apply Regularization</button>
+    </div>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Requested Status</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${myRegs.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><span class="badge badge-present">${r.requestedStatus}</span></td><td>${r.reason}</td><td><span class="badge ${r.status==='Approved'?'badge-present':'badge-late'}">${r.status}</span></td></tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No requests</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+}
+
+function renderEmpLeaves(emp){
+  const myReqs = state.requests.filter(r=>r.employeeId===emp.id);
+  return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Leave Applications</h3>
+      <button class="btn btn-primary" data-act="openLeaveModal">+ Apply Leave</button>
+    </div>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>From Date</th><th>To Date</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${myReqs.map(r=>`<tr><td>${fmtDate(r.fromDate)}</td><td>${fmtDate(r.toDate)}</td><td>${r.reason}</td><td><span class="badge ${r.status==='Approved'?'badge-present':'badge-late'}">${r.status}</span></td></tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No leave applications</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+}
+
+function renderEmpLoans(emp){
+  const myLoans = state.loans.filter(l=>l.employeeId===emp.id);
+  return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Advance & Loan Requests</h3>
+      <button class="btn btn-primary" data-act="openLoanModal">+ Request Advance / Loan</button>
+    </div>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>From Date</th><th>To Date</th><th>Amount</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${myLoans.map(l=>`<tr><td>${fmtDate(l.fromDate)}</td><td>${fmtDate(l.toDate)}</td><td><strong>${fmtMoney(l.amount)}</strong></td><td>${l.reason}</td><td><span class="badge ${l.status==='Approved'?'badge-present':'badge-late'}">${l.status}</span></td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No loan requests</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+}
+
+function renderEmpPayslip(emp, selectedMonth){
+  const mySlips = state.salarySlips.filter(s=>s.employeeId===emp.id).sort((a,b)=>b.month.localeCompare(a.month));
+  
+  if(mySlips.length === 0){
+    return `
+      <div class="flex-between" style="margin-bottom:14px;">
+        <h3 style="margin:0;">Salary Payslip</h3>
+      </div>
+      <div class="panel">
+        <div class="empty-state">
+          No salary slip has been generated and published by the admin for your account yet.
+        </div>
+      </div>
+    `;
+  }
+
+  const activeMonth = selectedMonth || mySlips[0].month;
+  const slip = mySlips.find(s=>s.month===activeMonth) || mySlips[0];
+
+  return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Salary Payslip (${slip.month})</h3>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <select id="payslipMonthSelect" style="width:auto;padding:6px 10px;">
+          ${mySlips.map(s=>`<option value="${s.month}" ${s.month===slip.month?'selected':''}>${s.month}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" onclick="window.print()">Print Payslip</button>
+      </div>
+    </div>
+    <div class="panel" style="max-width:620px;margin:0 auto;border:2px solid var(--border);">
+      <div style="text-align:center;border-bottom:2px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
+        <h3 style="margin:0;color:var(--accent);">${state.settings.companyName}</h3>
+        <p class="muted" style="margin:4px 0 0;">Official Salary Slip for ${slip.month} — ${emp.name} (${emp.designation})</p>
+      </div>
+      <table>
+        <tr><th>Earnings</th><th style="text-align:right;">Amount</th></tr>
+        <tr><td>Basic Salary</td><td style="text-align:right;">${fmtMoney(slip.basic)}</td></tr>
+        <tr><td>House Rent Allowances (HRA)</td><td style="text-align:right;">${fmtMoney(slip.hra)}</td></tr>
+        <tr><td>Education Allowance</td><td style="text-align:right;">${fmtMoney(slip.education)}</td></tr>
+        <tr><td>Market Allowance</td><td style="text-align:right;">${fmtMoney(slip.market)}</td></tr>
+        <tr><td>Conveyance Allowance</td><td style="text-align:right;">${fmtMoney(slip.conveyance)}</td></tr>
+        <tr><td>Bonus</td><td style="text-align:right;">${fmtMoney(slip.bonus)}</td></tr>
+        <tr><td>Company PF Admin Charges</td><td style="text-align:right;">${fmtMoney(slip.compPfAdmin)}</td></tr>
+        <tr><td>Company PF</td><td style="text-align:right;">${fmtMoney(slip.compPf)}</td></tr>
+        <tr><td>Company ESIC</td><td style="text-align:right;">${fmtMoney(slip.compEsic)}</td></tr>
+        <tr style="font-weight:700;border-top:1px solid var(--border);"><td>Gross Earnings</td><td style="text-align:right;">${fmtMoney(slip.gross)}</td></tr>
+        
+        <tr><th style="padding-top:12px;">Deductions</th><th style="text-align:right;padding-top:12px;">Amount</th></tr>
+        <tr><td>TDS</td><td style="text-align:right;">${fmtMoney(slip.tds)}</td></tr>
+        <tr><td>Insurance Deduction</td><td style="text-align:right;">${fmtMoney(slip.insurance)}</td></tr>
+        <tr><td>LWF Deduction</td><td style="text-align:right;">${fmtMoney(slip.lwf)}</td></tr>
+        <tr><td>Employee PF</td><td style="text-align:right;">${fmtMoney(slip.empPf)}</td></tr>
+        <tr><td>Employee ESIC</td><td style="text-align:right;">${fmtMoney(slip.empEsic)}</td></tr>
+        ${slip.loanDed > 0 ? `<tr><td>Loan Deduction</td><td style="text-align:right;color:var(--danger);">${fmtMoney(slip.loanDed)}</td></tr>` : ''}
+        <tr style="font-weight:700;border-top:1px solid var(--border);"><td>Total Deductions</td><td style="text-align:right;color:var(--danger);">${fmtMoney(slip.totalDed + slip.loanDed)}</td></tr>
+        
+        <tr style="font-size:15px;font-weight:800;border-top:2px solid var(--border);"><td style="padding-top:14px;">Net Take-Home Salary</td><td style="text-align:right;padding-top:14px;color:var(--accent);">${fmtMoney(slip.net)}</td></tr>
+      </table>
+    </div>
+  `;
+}
+
+const MGR_NAV = [
+  {key:'dashboard', label:'Check-In / Out (GPS)'},
+  {key:'attendance', label:'My Attendance'},
+  {key:'regularize', label:'Attendance Regularize'},
+  {key:'leaves', label:'Leave Applications'},
+  {key:'loans', label:'Loan & Advance'},
+  {key:'payslip', label:'Salary Payslip'},
+  {key:'approvals', label:'Team Approvals (Pending)'}
+];
+
+function renderManagerShell(user){
+  let content = '';
+  if(state.managerPage==='dashboard') content = renderEmpDash(user);
+  else if(state.managerPage==='attendance') content = renderEmpAtt(user);
+  else if(state.managerPage==='regularize') content = renderEmpReg(user);
+  else if(state.managerPage==='leaves') content = renderEmpLeaves(user);
+  else if(state.managerPage==='loans') content = renderEmpLoans(user);
+  else if(state.managerPage==='payslip') content = renderEmpPayslip(user, window.selectedEmpPayslipMonth || monthStr());
+  else if(state.managerPage==='approvals'){
+    const pendingLeaves = state.requests.filter(r=>r.status==='Pending');
+    const pendingLoans = state.loans.filter(l=>l.status==='Pending');
+    const pendingRegs = state.regularizations.filter(rg=>rg.status==='Pending');
+    content = `
+      <h3 style="margin-bottom:14px;">Team Requests & Approvals</h3>
+      
+      <h4 style="margin:16px 0 8px;">Attendance Regularization Requests</h4>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Employee ID & Name</th><th>Date</th><th>Status</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+        <tbody>${pendingRegs.map(r=>`<tr>
+          <td><strong>${r.employeeId} - ${empName(r.employeeId)}</strong></td><td>${fmtDate(r.date)}</td><td><span class="badge badge-present">${r.requestedStatus}</span></td><td>${r.reason}</td>
+          <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-apprreg="${r.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rejreg="${r.id}">Reject</button></td>
+        </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No pending regularization requests</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <h4 style="margin:16px 0 8px;">Leave Applications</h4>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Employee ID & Name</th><th>From - To Date</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+        <tbody>${pendingLeaves.map(r=>`<tr>
+          <td><strong>${r.employeeId} - ${empName(r.employeeId)}</strong></td><td>${fmtDate(r.fromDate)} to ${fmtDate(r.toDate)}</td><td>${r.reason}</td>
+          <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-appr="${r.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rej="${r.id}">Reject</button></td>
+        </tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No pending leave requests</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <h4 style="margin:16px 0 8px;">Loan Requests</h4>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Employee ID & Name</th><th>Dates</th><th>Amount</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+        <tbody>${pendingLoans.map(l=>`<tr>
+          <td><strong>${l.employeeId} - ${empName(l.employeeId)}</strong></td><td>${fmtDate(l.fromDate)} to ${fmtDate(l.toDate)}</td><td><strong>${fmtMoney(l.amount)}</strong></td><td>${l.reason}</td>
+          <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-apprloan="${l.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rejloan="${l.id}">Reject</button></td>
+        </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No pending loan requests</div></td></tr>'}</tbody>
+      </table></div></div>
+    `;
+  }
+
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="mark">T</div>${state.settings.companyName} — Manager Portal</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="clock" id="liveClockManager"></div>
+        <span style="font-weight:600;font-size:13px;">${user.name} (${user.id})</span>
+        <button class="btn btn-sm btn-danger" data-act="logout">Logout</button>
+      </div>
+    </div>
+    <div class="shell">
+      <div class="sidebar">${MGR_NAV.map(n=>`<div class="nav-item ${state.managerPage===n.key?'active':''}" data-mnav="${n.key}">${n.label}</div>`).join('')}</div>
+      <div class="main">${content}</div>
+    </div>
+  `;
+}
+
+const ADMIN_NAV = [
+  {key:'dashboard', label:'Dashboard'},
+  {key:'employees', label:'Employees & Access Setup'},
+  {key:'approvals', label:'Pending Approvals'},
+  {key:'salarygen', label:'Salary Slip Generation'},
+  {key:'adminops', label:'HR Operations (Shifts/Offs)'},
+  {key:'reports', label:'All Reports & Backup'}
+];
+
+function renderAdminShell(user){
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="mark">T</div>${state.settings.companyName} — Admin Portal</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="clock" id="liveClockAdmin"></div>
+        <span style="font-weight:600;font-size:13px;">${user.name} (${user.id})</span>
+        <button class="btn btn-sm btn-danger" data-act="logout">Logout</button>
+      </div>
+    </div>
+    <div class="shell">
+      <div class="sidebar">${ADMIN_NAV.map(n=>`<div class="nav-item ${state.adminPage===n.key?'active':''}" data-anav="${n.key}">${n.label}</div>`).join('')}</div>
+      <div class="main">${renderAdminPage(user)}</div>
+    </div>
+  `;
+}
+
+function renderAdminPage(user){
+  const p = state.adminPage;
+  const pendingLeaves = state.requests.filter(r=>r.status==='Pending');
+  const pendingLoans = state.loans.filter(l=>l.status==='Pending');
+  const pendingRegs = state.regularizations.filter(rg=>rg.status==='Pending');
+  const presentCount = state.attendance.filter(a=>a.date===todayStr()).length;
+
+  if(p==='dashboard') return `
+    <div class="dash-header-card">
+      <div>
+        <h2 style="margin:0;font-size:20px;font-weight:800;">Enterprise HR & Workforce Dashboard</h2>
+        <p style="margin:4px 0 0;color:#94a3b8;font-size:12.5px;">Overview of workforce metrics, attendance, and department stats.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" data-anav="employees">+ Manage Employees</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:16px;">
+      <div class="stat-card-box">
+        <div class="title">Total Active Employees</div>
+        <div class="val">${state.employees.filter(e=>e.status!=='Left').length}</div>
+      </div>
+      <div class="stat-card-box">
+        <div class="title">Present Today</div>
+        <div class="val" style="color:var(--success);">${presentCount}</div>
+      </div>
+      <div class="stat-card-box">
+        <div class="title">Pending Approvals</div>
+        <div class="val" style="color:var(--warn);">${pendingLeaves.length + pendingLoans.length + pendingRegs.length}</div>
+      </div>
+      <div class="stat-card-box">
+        <div class="title">Total Monthly Payroll</div>
+        <div class="val" style="color:#0284c7;font-size:18px;">${fmtMoney(state.employees.filter(e=>e.status!=='Left').reduce((sum,e)=>sum+calcSalary(e.salary).gross,0))}</div>
+      </div>
+    </div>
+
+    <div style="font-weight:800;font-size:14px;margin-bottom:10px;text-transform:uppercase;color:var(--ink-muted);">Department Distribution</div>
+    <div class="row" style="margin-bottom:16px;">
+      <div class="dept-tile" style="border-top-color:#3b82f6;">
+        <div style="font-weight:700;font-size:13px;color:var(--ink-muted);">Engineering / IT</div>
+        <div style="font-size:20px;font-weight:800;margin-top:4px;">${state.employees.filter(e=>e.status!=='Left' && (e.department==='Engineering' || e.designation.includes('Dev') || e.designation.includes('Manager'))).length} Staff</div>
+      </div>
+      <div class="dept-tile" style="border-top-color:#10b981;">
+        <div style="font-weight:700;font-size:13px;color:var(--ink-muted);">Management & Admin</div>
+        <div style="font-size:20px;font-weight:800;margin-top:4px;">${state.employees.filter(e=>e.status!=='Left' && (e.role==='admin' || e.department==='Management')).length} Staff</div>
+      </div>
+      <div class="dept-tile" style="border-top-color:#f59e0b;">
+        <div style="font-weight:700;font-size:13px;color:var(--ink-muted);">General Operations</div>
+        <div style="font-size:20px;font-weight:800;margin-top:4px;">${state.employees.filter(e=>e.status!=='Left' && e.role==='employee').length} Staff</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="flex-between" style="margin-bottom:10px;">
+        <h4 style="margin:0;">Recent Active Team Members</h4>
+        <button class="btn btn-sm btn-ghost" data-anav="employees">View All &rarr;</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Emp ID</th><th>Name</th><th>Role</th><th>Designation</th><th>Gross Salary</th></tr></thead>
+        <tbody>${state.employees.filter(e=>e.status!=='Left').slice(0,5).map(e=>{
+          const sal = calcSalary(e.salary);
+          return `<tr><td><strong>${e.id}</strong></td><td>${e.name}</td><td><span class="badge badge-present">${e.role}</span></td><td>${e.designation}</td><td><strong>${fmtMoney(sal.gross)}</strong></td></tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>
+  `;
+
+  if(p==='employees') return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Employee Directory, Access & Credentials</h3>
+      <button class="btn btn-primary" data-act="openEmpModal">+ Add New Employee</button>
+    </div>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Emp ID</th><th>Name & Role</th><th>Status</th><th>Designation</th><th>Gross Salary</th><th style="text-align:right;">Actions (Password / Status)</th></tr></thead>
+      <tbody>${state.employees.map(e=>{
+        const sal = calcSalary(e.salary);
+        const isLeft = e.status === 'Left';
+        return `<tr>
+          <td><strong>${e.id}</strong></td>
+          <td>${e.name}<br><small class="muted">${e.role.toUpperCase()}</small></td>
+          <td><span class="badge ${isLeft ? 'badge-absent' : 'badge-present'}">${e.status || 'Active'}</span></td>
+          <td>${e.designation}</td>
+          <td><strong>${fmtMoney(sal.gross)}</strong></td>
+          <td style="text-align:right;white-space:nowrap;">
+            <button class="btn btn-sm" data-resetpass="${e.id}">🔑 Reset Pass</button>
+            <button class="btn btn-sm btn-ghost" data-edit="${e.id}">Edit Salary</button>
+            <button class="btn btn-sm ${isLeft ? 'btn-primary' : 'btn-danger'}" data-toggleleft="${e.id}">${isLeft ? 'Reactivate' : 'Mark Left'}</button>
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div></div>
+  `;
+
+  if(p==='approvals') return `
+    <h3 style="margin-bottom:14px;">Admin Pending Approvals</h3>
+
+    <h4 style="margin:16px 0 8px;">Attendance Regularization Requests</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>Date</th><th>Status</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+      <tbody>${pendingRegs.map(r=>`<tr>
+        <td><strong>${r.employeeId} - ${empName(r.employeeId)}</strong></td><td>${fmtDate(r.date)}</td><td><span class="badge badge-present">${r.requestedStatus}</span></td><td>${r.reason}</td>
+        <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-apprreg="${r.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rejreg="${r.id}">Reject</button></td>
+      </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No pending regularization requests</div></td></tr>'}</tbody>
+    </table></div></div>
+
+    <h4 style="margin:16px 0 8px;">Leave Applications</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Emp ID & Name</th><th>From - To Date</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+      <tbody>${pendingLeaves.map(r=>`<tr>
+        <td><strong>${r.employeeId} - ${empName(r.employeeId)}</strong></td><td>${fmtDate(r.fromDate)} to ${fmtDate(r.toDate)}</td><td>${r.reason}</td>
+        <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-appr="${r.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rej="${r.id}">Reject</button></td>
+      </tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No pending leave requests</div></td></tr>'}</tbody>
+    </table></div></div>
+
+    <h4 style="margin:16px 0 8px;">Loan Requests</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>Dates</th><th>Amount</th><th>Reason</th><th style="text-align:right;">Action</th></tr></thead>
+      <tbody>${pendingLoans.map(l=>`<tr>
+        <td><strong>${l.employeeId} - ${empName(l.employeeId)}</strong></td><td>${fmtDate(l.fromDate)} to ${fmtDate(l.toDate)}</td><td><strong>${fmtMoney(l.amount)}</strong></td><td>${l.reason}</td>
+        <td style="text-align:right;"><button class="btn btn-sm btn-primary" data-apprloan="${l.id}">Approve</button> <button class="btn btn-sm btn-danger" data-rejloan="${l.id}">Reject</button></td>
+      </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No pending loan requests</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+
+  if(p==='salarygen') {
+    return `
+      <div class="flex-between" style="margin-bottom:14px;">
+        <h3 style="margin:0;">Month-Wise Salary Slip Generation & Publishing</h3>
+      </div>
+      <div class="panel" style="background:#f8fafc;">
+        <h4 style="margin-top:0;">Generate Slips for a Month</h4>
+        <div class="row" style="align-items:flex-end;">
+          <div class="field"><label>Select Month & Year</label><input type="month" id="gen_target_month" value="${monthStr()}"></div>
+          <div class="field"><button class="btn btn-primary" data-act="generateAllSlips">⚡ Generate & Publish for All Active Employees</button></div>
+        </div>
+        <p class="muted" style="font-size:12px;margin:4px 0 0;">Note: Once generated and published here, salary slips become immediately visible in employee and manager portals for that specific month.</p>
+      </div>
+
+      <h4 style="margin:16px 0 8px;">Already Generated & Published Salary Slips</h4>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Month</th><th>Emp ID & Name</th><th>Gross Salary</th><th>Net Salary</th><th style="text-align:right;">Action</th></tr></thead>
+        <tbody>${state.salarySlips.map(s=>`<tr>
+          <td><strong>${s.month}</strong></td>
+          <td>${s.employeeId} - ${empName(s.employeeId)}</td>
+          <td>${fmtMoney(s.gross)}</td>
+          <td><strong style="color:var(--success);">${fmtMoney(s.net)}</strong></td>
+          <td style="text-align:right;"><button class="btn btn-sm btn-danger" data-delslip="${s.id}">Delete/Unpublish</button></td>
+        </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No salary slips generated yet</div></td></tr>'}</tbody>
+      </table></div></div>
+    `;
+  }
+
+  if(p==='adminops') return `
+    <div class="flex-between" style="margin-bottom:14px;">
+      <h3 style="margin:0;">Direct HR Operations & Assignments (Admin Override)</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" data-act="openAdminApplyLeaveModal">+ Apply Leave</button>
+        <button class="btn btn-primary btn-sm" data-act="openAdminApplyLoanModal">+ Apply Loan</button>
+        <button class="btn btn-primary btn-sm" data-act="openAdminApplyRegModal">+ Apply Regularization</button>
+        <button class="btn btn-primary btn-sm" data-act="openAdminApplyShiftModal">+ Assign Shift/Weekoff</button>
+      </div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;">1. All Leave Records</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>From - To Date</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${state.requests.map(r=>`<tr><td><strong>${r.employeeId} - ${empName(r.employeeId)}</strong></td><td>${fmtDate(r.fromDate)} to ${fmtDate(r.toDate)}</td><td>${r.reason}</td><td><span class="badge ${r.status==='Approved'?'badge-present':'badge-late'}">${r.status}</span></td></tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No leave records</div></td></tr>'}</tbody>
+    </table></div></div>
+
+    <h4 style="margin:16px 0 8px;">2. All Loan & Advance Records</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>Dates</th><th>Amount</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${state.loans.map(l=>`<tr><td><strong>${l.employeeId} - ${empName(l.employeeId)}</strong></td><td>${fmtDate(l.fromDate)} to ${fmtDate(l.toDate)}</td><td><strong>${fmtMoney(l.amount)}</strong></td><td>${l.reason}</td><td><span class="badge ${l.status==='Approved'?'badge-present':'badge-late'}">${l.status}</span></td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No loan records</div></td></tr>'}</tbody>
+    </table></div></div>
+
+    <h4 style="margin:16px 0 8px;">3. All Attendance Regularization Records</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>Date</th><th>Requested Status</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>${state.regularizations.map(rg=>`<tr><td><strong>${rg.employeeId} - ${empName(rg.employeeId)}</strong></td><td>${fmtDate(rg.date)}</td><td><span class="badge badge-present">${rg.requestedStatus}</span></td><td>${rg.reason}</td><td><span class="badge ${rg.status==='Approved'?'badge-present':'badge-late'}">${rg.status}</span></td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No regularization records</div></td></tr>'}</tbody>
+    </table></div></div>
+
+    <h4 style="margin:16px 0 8px;">4. All Shift & Week-Off Assignments</h4>
+    <div class="panel"><div class="table-wrap"><table>
+      <thead><tr><th>Employee ID & Name</th><th>Shift Timing</th><th>Week-Off</th><th>Effective Date</th><th>Assigned By</th></tr></thead>
+      <tbody>${state.shifts.map((s, idx)=>{
+        const woff = state.weekoffs[idx] ? state.weekoffs[idx].day : 'Sunday';
+        return `<tr><td><strong>${s.employeeId} - ${empName(s.employeeId)}</strong></td><td>${s.shiftName} (${s.timing})</td><td>${woff}</td><td>${fmtDate(s.date)}</td><td>Admin</td></tr>`;
+      }).join('') || '<tr><td colspan="5"><div class="empty-state">No custom shifts assigned</div></td></tr>'}</tbody>
+    </table></div></div>
+  `;
+
+  if(p==='reports') {
+    const fEmp = window.repEmpFilter || '';
+    const fFrom = window.repFromDate || '';
+    const fTo = window.repToDate || '';
+
+    const filteredAttendance = state.attendance.filter(a => {
+      let match = true;
+      if(fEmp && a.employeeId !== fEmp) match = false;
+      if(fFrom && a.date < fFrom) match = false;
+      if(fTo && a.date > fTo) match = false;
+      return match;
+    });
+
+    return `
+      <div class="flex-between" style="margin-bottom:14px;">
+        <h3 style="margin:0;">System Backup, Restore & Reports</h3>
+      </div>
+
+      <div class="panel" style="background:#f8fafc;border:2px dashed var(--accent);">
+        <h4 style="margin-top:0;color:var(--accent);">💾 System Database Backup & Restore</h4>
+        <p class="muted" style="font-size:12.5px;margin-bottom:12px;">Poora data (employees, attendance, leaves, loans, salary slips) ek single file me download karein ya purani file se restore karein.</p>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" data-act="systemBackup">📥 Download System Backup (JSON)</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="file" id="restoreFile" accept=".json" style="padding:4px;font-size:12px;width:auto;">
+            <button class="btn btn-danger" data-act="systemRestore">📤 Restore Data</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">1. Attendance Report (Filtered & Downloadable)</h4>
+        <button class="btn btn-sm btn-primary" data-export="attendanceFiltered">📥 Export Filtered Attendance CSV</button>
+      </div>
+      <div class="panel" style="background:#f8fafc;">
+        <div class="row" style="margin-bottom:0;">
+          <div class="field"><label>Filter Employee</label>
+            <select id="filter_rep_emp">
+              <option value="">All Employees</option>
+              ${state.employees.map(e=>`<option value="${e.id}" ${fEmp===e.id?'selected':''}>${e.name} (${e.id})</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>From Date</label><input type="date" id="filter_rep_from" value="${fFrom}"></div>
+          <div class="field"><label>To Date</label><input type="date" id="filter_rep_to" value="${fTo}"></div>
+          <div class="field" style="display:flex;align-items:flex-end;">
+            <button class="btn btn-primary btn-block" data-act="applyAttFilter">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID & Name</th><th>Date</th><th>Check In</th><th>Check Out</th><th>Location</th><th>Status</th></tr></thead>
+        <tbody>${filteredAttendance.map(a=>{
+          const st = calcAttendanceStatus(a.checkIn, a.checkOut);
+          return `<tr><td><strong>${a.employeeId}</strong> - ${empName(a.employeeId)}</td><td>${fmtDate(a.date)}</td><td>${fmtTime(a.checkIn)}</td><td>${fmtTime(a.checkOut)}</td><td><small>📍 ${a.location||'Raipur'}</small></td><td><span class="badge ${st==='Present'?'badge-present':'badge-half'}">${st}</span></td></tr>`;
+        }).join('') || '<tr><td colspan="6"><div class="empty-state">No attendance records found for selected filters</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">2. Employee Report</h4>
+        <button class="btn btn-sm btn-primary" data-export="employee">📥 Export Employee CSV</button>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID</th><th>Name</th><th>Role</th><th>Status</th><th>Designation</th><th>Gross</th><th>Net Salary</th></tr></thead>
+        <tbody>${state.employees.map(e=>{
+          const sal = calcSalary(e.salary);
+          const net = sal.gross - (sal.totalDed);
+          return `<tr><td>${e.id}</td><td><strong>${e.name}</strong></td><td>${e.role}</td><td><span class="badge ${e.status==='Left'?'badge-absent':'badge-present'}">${e.status||'Active'}</span></td><td>${e.designation}</td><td><strong>${fmtMoney(sal.gross)}</strong></td><td><strong style="color:var(--accent);">${fmtMoney(net)}</strong></td></tr>`;
+        }).join('')}</tbody>
+      </table></div></div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">3. Leave Report</h4>
+        <button class="btn btn-sm btn-primary" data-export="leave">📥 Export Leave CSV</button>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID & Name</th><th>From Date</th><th>To Date</th><th>Reason</th><th>Status</th></tr></thead>
+        <tbody>${state.requests.map(r=>`<tr><td>${r.employeeId} - ${empName(r.employeeId)}</td><td>${fmtDate(r.fromDate)}</td><td>${fmtDate(r.toDate)}</td><td>${r.reason}</td><td><span class="badge ${r.status==='Approved'?'badge-present':'badge-late'}">${r.status}</span></td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No leave records</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">4. Loan Report</h4>
+        <button class="btn btn-sm btn-primary" data-export="loan">📥 Export Loan CSV</button>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID & Name</th><th>From Date</th><th>To Date</th><th>Amount</th><th>Reason</th><th>Status</th></tr></thead>
+        <tbody>${state.loans.map(l=>`<tr><td>${l.employeeId} - ${empName(l.employeeId)}</td><td>${fmtDate(l.fromDate)}</td><td>${fmtDate(l.toDate)}</td><td><strong>${fmtMoney(l.amount)}</strong></td><td>${l.reason}</td><td><span class="badge ${l.status==='Approved'?'badge-present':'badge-late'}">${l.status}</span></td></tr>`).join('') || '<tr><td colspan="6"><div class="empty-state">No loan records</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">5. Regularization Report</h4>
+        <button class="btn btn-sm btn-primary" data-export="regularization">📥 Export Regularization CSV</button>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID & Name</th><th>Date</th><th>Requested Status</th><th>Reason</th><th>Status</th></tr></thead>
+        <tbody>${state.regularizations.map(rg=>`<tr><td>${rg.employeeId} - ${empName(rg.employeeId)}</td><td>${fmtDate(rg.date)}</td><td><span class="badge badge-present">${rg.requestedStatus}</span></td><td>${rg.reason}</td><td><span class="badge ${rg.status==='Approved'?'badge-present':'badge-late'}">${rg.status}</span></td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">No regularization records</div></td></tr>'}</tbody>
+      </table></div></div>
+
+      <div class="flex-between" style="margin:14px 0 6px;">
+        <h4 style="margin:0;color:var(--accent);">6. Shift & Week-Off Report</h4>
+        <button class="btn btn-sm btn-primary" data-export="shift">📥 Export Shift & Week-Off CSV</button>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Emp ID & Name</th><th>Shift Name</th><th>Timing</th><th>Effective Date</th></tr></thead>
+        <tbody>${state.shifts.map(s=>`<tr><td>${s.employeeId} - ${empName(s.employeeId)}</td><td>${s.shiftName}</td><td>${s.timing}</td><td>${fmtDate(s.date)}</td></tr>`).join('') || '<tr><td colspan="4"><div class="empty-state">No shift records</div></td></tr>'}</tbody>
+      </table></div></div>
+    `;
+  }
+  return '';
+}
+
+function handleSystemBackup(){
+  const backupData = {
+    version: 'v11',
+    timestamp: new Date().toISOString(),
+    data: {
+      ts_emp_v11: getKey('ts_emp_v11'),
+      ts_att_v11: getKey('ts_att_v11'),
+      ts_req_v11: getKey('ts_req_v11'),
+      ts_loan_v11: getKey('ts_loan_v11'),
+      ts_reg_v11: getKey('ts_reg_v11'),
+      ts_shift_v11: getKey('ts_shift_v11'),
+      ts_weekoff_v11: getKey('ts_weekoff_v11'),
+      ts_sal_slips_v11: getKey('ts_sal_slips_v11')
+    }
+  };
+  const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `karm_backup_${todayStr()}.json`;
+  a.click();
+  toast('System Backup Downloaded Successfully!');
+}
+
+function handleSystemRestore(){
+  const fileInput = document.getElementById('restoreFile');
+  if(!fileInput.files || fileInput.files.length === 0){
+    toast('Please select a backup JSON file first!');
+    return;
+  }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
     try {
-      const storedItems = localStorage.getItem(INVENTORY_STORAGE_KEY);
-      const storedBills = localStorage.getItem(BILLS_STORAGE_KEY);
-      const storedCusts = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
-      const storedPurchases = localStorage.getItem(PURCHASES_STORAGE_KEY);
-      const storedBillNo = localStorage.getItem(LAST_BILL_NO_KEY);
-
-      if (storedItems) items = JSON.parse(storedItems);
-      if (storedCusts) customers = JSON.parse(storedCusts);
-      if (storedBills) bills = JSON.parse(storedBills);
-      if (storedPurchases) purchases = JSON.parse(storedPurchases);
-      if (storedBillNo) currentBillNo = parseInt(storedBillNo);
-
-      const storedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
-      if (storedLogo) companyLogo = storedLogo;
-    } catch(e) { console.error(e); }
-  }
-
-  function saveDataToStorage() {
-    try {
-      localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(items));
-      localStorage.setItem(BILLS_STORAGE_KEY, JSON.stringify(bills));
-      localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(customers));
-      localStorage.setItem(PURCHASES_STORAGE_KEY, JSON.stringify(purchases));
-      localStorage.setItem(LAST_BILL_NO_KEY, currentBillNo.toString());
-    } catch(e) { console.error(e); }
-  }
-
-  // COMPANY LOGO: upload, preview (header + printable invoice), remove
-  function renderLogo() {
-    const headerImg = document.getElementById('companyLogoImg');
-    const invoiceImg = document.getElementById('invoiceLogoImg');
-    const uploadLabel = document.getElementById('logoUploadLabel');
-    const removeBtn = document.getElementById('removeLogoBtn');
-
-    if (companyLogo) {
-      headerImg.src = companyLogo;
-      headerImg.style.display = 'block';
-      invoiceImg.src = companyLogo;
-      invoiceImg.style.display = 'block';
-      uploadLabel.textContent = '🔄 Logo Badlein';
-      removeBtn.style.display = 'inline-flex';
-    } else {
-      headerImg.src = '';
-      headerImg.style.display = 'none';
-      invoiceImg.src = '';
-      invoiceImg.style.display = 'none';
-      uploadLabel.textContent = '📷 Logo Add Karein';
-      removeBtn.style.display = 'none';
-    }
-  }
-
-  document.getElementById('companyLogoInput').addEventListener('change', (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      alert('Kripya sirf image file (jpg/png) select karein!');
-      e.target.value = '';
-      return;
-    }
-    if (file.size > 1.5 * 1024 * 1024) {
-      alert('Logo image 1.5MB se chhoti honi chahiye. Kripya chhota image select karein.');
-      e.target.value = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      companyLogo = ev.target.result;
-      try {
-        localStorage.setItem(LOGO_STORAGE_KEY, companyLogo);
-      } catch(err) {
-        console.error(err);
-        alert('❌ Logo save nahi ho paya (storage full ho sakta hai). Chhoti image try karein.');
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.data){
+        toast('Invalid backup file structure!');
         return;
       }
-      renderLogo();
+      const d = parsed.data;
+      if(d.ts_emp_v11) setKey('ts_emp_v11', d.ts_emp_v11);
+      if(d.ts_att_v11) setKey('ts_att_v11', d.ts_att_v11);
+      if(d.ts_req_v11) setKey('ts_req_v11', d.ts_req_v11);
+      if(d.ts_loan_v11) setKey('ts_loan_v11', d.ts_loan_v11);
+      if(d.ts_reg_v11) setKey('ts_reg_v11', d.ts_reg_v11);
+      if(d.ts_shift_v11) setKey('ts_shift_v11', d.ts_shift_v11);
+      if(d.ts_weekoff_v11) setKey('ts_weekoff_v11', d.ts_weekoff_v11);
+      if(d.ts_sal_slips_v11) setKey('ts_sal_slips_v11', d.ts_sal_slips_v11);
+
+      initData();
+      render();
+      toast('System Data Restored Successfully!');
+    } catch(err){
+      toast('Error reading backup file. Please ensure it is a valid JSON.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function exportSingleReport(type){
+  let csv = '';
+  let filename = '';
+  if(type==='attendanceFiltered'){
+    csv = 'Emp ID,Name,Date,Check In,Check Out,Location,Status\n';
+    const fEmp = window.repEmpFilter || '';
+    const fFrom = window.repFromDate || '';
+    const fTo = window.repToDate || '';
+    state.attendance.filter(a => {
+      let match = true;
+      if(fEmp && a.employeeId !== fEmp) match = false;
+      if(fFrom && a.date < fFrom) match = false;
+      if(fTo && a.date > fTo) match = false;
+      return match;
+    }).forEach(a => {
+      const st = calcAttendanceStatus(a.checkIn, a.checkOut);
+      csv += `"${a.employeeId}","${empName(a.employeeId)}","${a.date}","${fmtTime(a.checkIn)}","${fmtTime(a.checkOut)}","${a.location||'Raipur'}","${st}"\n`;
+    });
+    filename = 'Filtered_Attendance_Report';
+  } else if(type==='employee'){
+    csv = 'Emp ID,Name,Role,Status,Designation,Basic,HRA,Gross\n';
+    state.employees.forEach(e=>{
+      const sal = calcSalary(e.salary);
+      csv += `"${e.id}","${e.name}","${e.role}","${e.status||'Active'}","${e.designation}",${sal.basic},${sal.hra},${sal.gross}\n`;
+    });
+    filename = 'Employee_Report';
+  } else if(type==='leave'){
+    csv = 'Emp ID,Name,From Date,To Date,Reason,Status\n';
+    state.requests.forEach(r=>{
+      csv += `"${r.employeeId}","${empName(r.employeeId)}","${r.fromDate}","${r.toDate}","${r.reason}","${r.status}"\n`;
+    });
+    filename = 'Leave_Report';
+  } else if(type==='loan'){
+    csv = 'Emp ID,Name,From Date,To Date,Amount,Reason,Status\n';
+    state.loans.forEach(l=>{
+      csv += `"${l.employeeId}","${empName(l.employeeId)}","${l.fromDate}","${l.toDate}",${l.amount},"${l.reason}","${l.status}"\n`;
+    });
+    filename = 'Loan_Report';
+  } else if(type==='regularization'){
+    csv = 'Emp ID,Name,Date,Requested Status,Reason,Status\n';
+    state.regularizations.forEach(rg=>{
+      csv += `"${rg.employeeId}","${empName(rg.employeeId)}","${rg.date}","${rg.requestedStatus}","${rg.reason}","${rg.status}"\n`;
+    });
+    filename = 'Regularization_Report';
+  } else if(type==='shift'){
+    csv = 'Emp ID,Name,Shift Name,Timing,Effective Date\n';
+    state.shifts.forEach(s=>{
+      csv += `"${s.employeeId}","${empName(s.employeeId)}","${s.shiftName}","${s.timing}","${s.date}"\n`;
+    });
+    filename = 'Shift_Report';
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}_${todayStr()}.csv`;
+  a.click();
+  toast(`${filename} Downloaded Successfully!`);
+}
+
+function closeModal(){ const m = document.getElementById('modalRoot'); if(m) m.innerHTML=''; }
+
+function openEmpModal(e){
+  const emp = e || { 
+    id:'EMP'+Math.floor(100+Math.random()*900), name:'', role:'employee', designation:'', pass:'1234', status:'Active', 
+    salary:{basic:20000, hra:8000, education:1000, market:1500, conveyance:1600, bonus:1666, compPfAdmin:300, compPf:1800, compEsic:0, tds:500, insurance:300, lwf:200, empPf:1800, empEsic:0} 
+  };
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">${e?'Edit Employee & Salary Structure':'Add New Employee'}</h3>
+      <div class="field"><label>Employee ID</label><input type="text" id="m_empid" value="${emp.id}" ${e?'disabled':''}></div>
+      <div class="field"><label>Full Name</label><input type="text" id="m_name" value="${emp.name}"></div>
+      <div class="row">
+        <div class="field"><label>Role</label><select id="m_role"><option value="employee" ${emp.role==='employee'?'selected':''}>Employee</option><option value="manager" ${emp.role==='manager'?'selected':''}>Manager</option><option value="admin" ${emp.role==='admin'?'selected':''}>Admin</option></select></div>
+        <div class="field"><label>Designation</label><input type="text" id="m_desig" value="${emp.designation}"></div>
+      </div>
+      ${!e ? `<div class="field"><label>Initial Password</label><input type="text" id="m_pass" value="1234"></div>` : ''}
+      
+      <h4 style="margin:12px 0 6px;color:var(--accent);">Earnings (Allowances & Additions)</h4>
+      <div class="row">
+        <div class="field"><label>Basic</label><input type="number" id="m_basic" value="${emp.salary?.basic}"></div>
+        <div class="field"><label>House Rent Allowances</label><input type="number" id="m_hra" value="${emp.salary?.hra}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Education Allowance</label><input type="number" id="m_education" value="${emp.salary?.education}"></div>
+        <div class="field"><label>Market Allowance</label><input type="number" id="m_market" value="${emp.salary?.market}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Conveyance Allowance</label><input type="number" id="m_conveyance" value="${emp.salary?.conveyance}"></div>
+        <div class="field"><label>Bonus</label><input type="number" id="m_bonus" value="${emp.salary?.bonus}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Company PF Admin Charges</label><input type="number" id="m_compPfAdmin" value="${emp.salary?.compPfAdmin}"></div>
+        <div class="field"><label>Company PF</label><input type="number" id="m_compPf" value="${emp.salary?.compPf}"></div>
+      </div>
+      <div class="field"><label>Company ESIC</label><input type="number" id="m_compEsic" value="${emp.salary?.compEsic}"></div>
+
+      <h4 style="margin:12px 0 6px;color:var(--danger);">Deductions</h4>
+      <div class="row">
+        <div class="field"><label>TDS</label><input type="number" id="m_tds" value="${emp.salary?.tds}"></div>
+        <div class="field"><label>Insurance Deduction</label><input type="number" id="m_insurance" value="${emp.salary?.insurance}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>LWF Deduction</label><input type="number" id="m_lwf" value="${emp.salary?.lwf}"></div>
+        <div class="field"><label>Employee PF</label><input type="number" id="m_empPf" value="${emp.salary?.empPf}"></div>
+      </div>
+      <div class="field"><label>Employee ESIC</label><input type="number" id="m_empEsic" value="${emp.salary?.empEsic}"></div>
+
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="saveEmp" data-id="${emp.id}">Save Employee</button></div>
+    </div></div>
+  `;
+}
+
+function openResetPasswordModal(empId){
+  const emp = state.employees.find(x=>x.id===empId);
+  if(!emp) return;
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Reset Password for ${emp.name} (${emp.id})</h3>
+      <div class="field"><label>New Password</label><input type="text" id="new_admin_pass" placeholder="Enter new secure password"></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="saveNewPass" data-id="${emp.id}">Update Password</button></div>
+    </div></div>
+  `;
+}
+
+function openLeaveModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Apply for Leave</h3>
+      <div class="row">
+        <div class="field"><label>From Date</label><input type="date" id="modal_fdate" value="${todayStr()}"></div>
+        <div class="field"><label>To Date</label><input type="date" id="modal_tdate" value="${todayStr()}"></div>
+      </div>
+      <div class="field"><label>Reason</label><textarea id="modal_lreason" rows="3" placeholder="Enter reason for leave"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="submitLeave">Submit Application</button></div>
+    </div></div>
+  `;
+}
+
+function openLoanModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Request Advance / Loan</h3>
+      <div class="row">
+        <div class="field"><label>From Date</label><input type="date" id="modal_lfdate" value="${todayStr()}"></div>
+        <div class="field"><label>To Date</label><input type="date" id="modal_ltdate" value="${todayStr()}"></div>
+      </div>
+      <div class="field"><label>Amount (${state.settings.currency})</label><input type="number" id="modal_lamount" placeholder="Enter Amount"></div>
+      <div class="field"><label>Reason</label><textarea id="modal_lreason2" rows="3" placeholder="Reason for advance"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="submitLoan">Submit Request</button></div>
+    </div></div>
+  `;
+}
+
+function openRegModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Attendance Regularization</h3>
+      <div class="field"><label>Date</label><input type="date" id="modal_rgdate" value="${todayStr()}"></div>
+      <div class="field"><label>Requested Status</label><select id="modal_rgstatus"><option value="Present">Present</option><option value="Half Day">Half Day</option><option value="Work From Home">Work From Home</option></select></div>
+      <div class="field"><label>Reason</label><textarea id="modal_rgreason" rows="3" placeholder="Reason for regularization"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="submitReg">Submit Request</button></div>
+    </div></div>
+  `;
+}
+
+function openAdminApplyLeaveModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Admin: Apply Leave for Employee</h3>
+      <div class="field"><label>Select Employee</label><select id="adm_lemp">${state.employees.filter(e=>e.status!=='Left').map(e=>`<option value="${e.id}">${e.name} (${e.id})</option>`).join('')}</select></div>
+      <div class="row">
+        <div class="field"><label>From Date</label><input type="date" id="adm_lf" value="${todayStr()}"></div>
+        <div class="field"><label>To Date</label><input type="date" id="adm_lt" value="${todayStr()}"></div>
+      </div>
+      <div class="field"><label>Reason</label><textarea id="adm_lrs" rows="2" placeholder="Leave reason"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="adminSubmitLeave">Direct Apply & Approve</button></div>
+    </div></div>
+  `;
+}
+
+function openAdminApplyLoanModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Admin: Apply Loan for Employee</h3>
+      <div class="field"><label>Select Employee</label><select id="adm_loanemp">${state.employees.filter(e=>e.status!=='Left').map(e=>`<option value="${e.id}">${e.name} (${e.id})</option>`).join('')}</select></div>
+      <div class="row">
+        <div class="field"><label>From Date</label><input type="date" id="adm_loanf" value="${todayStr()}"></div>
+        <div class="field"><label>To Date</label><input type="date" id="adm_loant" value="${todayStr()}"></div>
+      </div>
+      <div class="field"><label>Amount</label><input type="number" id="adm_loanamt" placeholder="Enter Amount"></div>
+      <div class="field"><label>Reason</label><textarea id="adm_loanrs" rows="2" placeholder="Loan reason"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="adminSubmitLoan">Direct Apply & Approve</button></div>
+    </div></div>
+  `;
+}
+
+function openAdminApplyRegModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Admin: Apply Regularization for Employee</h3>
+      <div class="field"><label>Select Employee</label><select id="adm_regemp">${state.employees.filter(e=>e.status!=='Left').map(e=>`<option value="${e.id}">${e.name} (${e.id})</option>`).join('')}</select></div>
+      <div class="field"><label>Date</label><input type="date" id="adm_regdate" value="${todayStr()}"></div>
+      <div class="field"><label>Requested Status</label><select id="adm_regstatus"><option value="Present">Present</option><option value="Half Day">Half Day</option><option value="Work From Home">Work From Home</option></select></div>
+      <div class="field"><label>Reason</label><textarea id="adm_regrs" rows="2" placeholder="Regularization reason"></textarea></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="adminSubmitReg">Direct Apply & Approve</button></div>
+    </div></div>
+  `;
+}
+
+function openAdminApplyShiftModal(){
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-backdrop" id="modalBack"><div class="modal">
+      <h3 style="margin-top:0;">Admin: Assign Shift & Week-off</h3>
+      <div class="field"><label>Select Employee</label><select id="adm_semp">${state.employees.filter(e=>e.status!=='Left').map(e=>`<option value="${e.id}">${e.name} (${e.id})</option>`).join('')}</select></div>
+      <div class="row">
+        <div class="field"><label>Shift Name</label><select id="adm_sname"><option value="General Shift">General Shift (10 AM - 7 PM)</option><option value="Morning Shift">Morning Shift (7 AM - 4 PM)</option><option value="Night Shift">Night Shift (9 PM - 6 AM)</option></select></div>
+        <div class="field"><label>Week-Off Day</label><select id="adm_woff"><option value="Sunday">Sunday</option><option value="Saturday & Sunday">Saturday & Sunday</option><option value="Monday">Monday</option></select></div>
+      </div>
+      <div class="field"><label>Effective Date</label><input type="date" id="adm_sdate" value="${todayStr()}"></div>
+      <div class="row" style="margin-top:14px;"><button class="btn" data-act="closeModal">Cancel</button><button class="btn btn-primary" data-act="adminSubmitShift">Save Assignment</button></div>
+    </div></div>
+  `;
+}
+
+function attachEvents(){
+  setInterval(()=>{
+    const d = new Date().toLocaleTimeString();
+    ['liveClock','liveClockAdmin','liveClockManager','dashTime'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=d; });
+  }, 1000);
+
+  const psSelect = document.getElementById('payslipMonthSelect');
+  if(psSelect){
+    psSelect.onchange = (e) => {
+      window.selectedEmpPayslipMonth = e.target.value;
+      render();
     };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  });
-
-  document.getElementById('removeLogoBtn').addEventListener('click', () => {
-    if (confirm('Kya aap company logo hatana chahte hain?')) {
-      companyLogo = '';
-      localStorage.removeItem(LOGO_STORAGE_KEY);
-      renderLogo();
-    }
-  });
-
-  // ===================== LOGIN / USERS (AUTH) =====================
-  // NOTE: This is client-side, browser-only protection (no server). It keeps
-  // casual/unintended users out and lets you give separate logins to each
-  // person, but anyone with browser dev-tools access to this device could
-  // technically bypass it. Don't rely on it for highly sensitive data.
-
-  async function hashPassword(password) {
-    const enc = new TextEncoder().encode(password);
-    const buf = await crypto.subtle.digest('SHA-256', enc);
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  function loadUsers() {
-    try {
-      const stored = localStorage.getItem(USERS_STORAGE_KEY);
-      users = stored ? JSON.parse(stored) : [];
-    } catch(e) { console.error(e); users = []; }
-  }
+  document.body.onclick = (e)=>{
+    const t = e.target;
+    if(t.dataset.act==='login'){ doLogin(); return; }
+    if(t.dataset.act==='logout'){ doLogout(); return; }
+    if(t.dataset.enav){ state.empPage = t.dataset.enav; render(); return; }
+    if(t.dataset.anav){ state.adminPage = t.dataset.anav; render(); return; }
+    if(t.dataset.mnav){ state.managerPage = t.dataset.mnav; render(); return; }
+    if(t.dataset.export){ exportSingleReport(t.dataset.export); return; }
+    if(t.dataset.act==='systemBackup'){ handleSystemBackup(); return; }
+    if(t.dataset.act==='systemRestore'){ handleSystemRestore(); return; }
 
-  function saveUsers() {
-    try {
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    } catch(e) { console.error(e); }
-  }
-
-  async function ensureDefaultUser() {
-    loadUsers();
-    if (users.length === 0) {
-      const defaultHash = await hashPassword('admin123');
-      users.push({ username: 'admin', passwordHash: defaultHash });
-      saveUsers();
-    }
-  }
-
-  function showLoginScreen() {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('appRoot').classList.add('app-hidden');
-    document.getElementById('loginUsername').value = '';
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('loginError').textContent = '';
-    setTimeout(() => document.getElementById('loginUsername').focus(), 50);
-  }
-
-  function showApp() {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('appRoot').classList.remove('app-hidden');
-    document.getElementById('loggedInUserDisplay').textContent = loggedInUser || '';
-    initApp();
-  }
-
-  async function attemptLogin() {
-    const uname = document.getElementById('loginUsername').value.trim();
-    const pass = document.getElementById('loginPassword').value;
-    const errEl = document.getElementById('loginError');
-    errEl.textContent = '';
-
-    if (!uname || !pass) {
-      errEl.textContent = 'Username aur Password dono bharein!';
+    if(t.dataset.act==='applyAttFilter'){
+      window.repEmpFilter = document.getElementById('filter_rep_emp').value;
+      window.repFromDate = document.getElementById('filter_rep_from').value;
+      window.repToDate = document.getElementById('filter_rep_to').value;
+      render();
+      toast('Attendance filter applied successfully!');
       return;
     }
 
-    const hash = await hashPassword(pass);
-    const match = users.find(u => u.username.toLowerCase() === uname.toLowerCase() && u.passwordHash === hash);
-
-    if (!match) {
-      errEl.textContent = '❌ Galat Username ya Password!';
+    if(t.dataset.resetpass){
+      openResetPasswordModal(t.dataset.resetpass);
       return;
     }
 
-    loggedInUser = match.username;
-    localStorage.setItem(LOGGED_IN_USER_KEY, loggedInUser);
-    showApp();
-  }
-
-  document.getElementById('loginSubmitBtn').addEventListener('click', attemptLogin);
-  document.getElementById('loginPassword').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') attemptLogin();
-  });
-  document.getElementById('loginUsername').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('loginPassword').focus();
-  });
-
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (confirm('Kya aap logout karna chahte hain?')) {
-      loggedInUser = null;
-      localStorage.removeItem(LOGGED_IN_USER_KEY);
-      location.reload();
-    }
-  });
-
-  // ---- Users management tab ----
-  document.getElementById('toggleAddUserBtn').addEventListener('click', () => {
-    resetUserForm();
-    document.getElementById('addUserRow').classList.toggle('open');
-  });
-
-  document.getElementById('cancelUserBtn').addEventListener('click', () => {
-    resetUserForm();
-    document.getElementById('addUserRow').classList.remove('open');
-  });
-
-  function resetUserForm() {
-    document.getElementById('editUserId').value = '';
-    document.getElementById('newUserName').value = '';
-    document.getElementById('newUserName').disabled = false;
-    document.getElementById('newUserPassword').value = '';
-    document.getElementById('newUserConfirmPassword').value = '';
-  }
-
-  document.getElementById('saveUserBtn').addEventListener('click', async () => {
-    const editId = document.getElementById('editUserId').value;
-    const uname = document.getElementById('newUserName').value.trim();
-    const pass = document.getElementById('newUserPassword').value;
-    const confirmPass = document.getElementById('newUserConfirmPassword').value;
-
-    if (!uname) return alert('Username zaroori hai!');
-    if (!editId && !pass) return alert('Password zaroori hai!');
-    if (pass && pass !== confirmPass) return alert('Password aur Confirm Password match nahi kar rahe!');
-
-    if (editId) {
-      // editing existing user (password reset only; username locked)
-      const idx = users.findIndex(u => u.username === editId);
-      if (idx === -1) return alert('User nahi mila!');
-      if (pass) {
-        users[idx].passwordHash = await hashPassword(pass);
+    if(t.dataset.toggleleft){
+      const emp = state.employees.find(x=>x.id===t.dataset.toggleleft);
+      if(emp){
+        emp.status = (emp.status === 'Left') ? 'Active' : 'Left';
+        saveAll();
+        toast(`Employee ${emp.name} marked as ${emp.status}`);
+        render();
       }
-    } else {
-      const dup = users.find(u => u.username.toLowerCase() === uname.toLowerCase());
-      if (dup) return alert('Ye username pehle se maujood hai!');
-      users.push({ username: uname, passwordHash: await hashPassword(pass) });
+      return;
     }
 
-    saveUsers();
-    renderUsers();
-    resetUserForm();
-    document.getElementById('addUserRow').classList.remove('open');
-    alert('✅ User Safaltapurvak Save Ho Gaya!');
-  });
-
-  window.editUser = function(username) {
-    resetUserForm();
-    document.getElementById('editUserId').value = username;
-    document.getElementById('newUserName').value = username;
-    document.getElementById('newUserName').disabled = true;
-    document.getElementById('addUserRow').classList.add('open');
-  };
-
-  window.deleteUser = function(username) {
-    if (username === loggedInUser) return alert('Aap khud ko delete nahi kar sakte jab aap login hain!');
-    if (users.length <= 1) return alert('Kam se kam ek user rehna zaroori hai!');
-    if (confirm(`Kya aap user "${username}" ko delete karna chahte hain?`)) {
-      users = users.filter(u => u.username !== username);
-      saveUsers();
-      renderUsers();
+    if(t.dataset.act==='saveNewPass'){
+      const id = t.dataset.id;
+      const newPass = document.getElementById('new_admin_pass').value;
+      if(!newPass){ toast('Please enter new password'); return; }
+      const emp = state.employees.find(x=>x.id===id);
+      if(emp){
+        emp.pass = newPass;
+        saveAll();
+        closeModal();
+        toast(`Password successfully updated for ${emp.name}!`);
+        render();
+      }
+      return;
     }
-  };
 
-  function renderUsers() {
-    document.getElementById('usersTableBody').innerHTML = users.map((u, idx) => `
-      <tr>
-        <td>${idx + 1}</td>
-        <td><b>${u.username}</b>${u.username === loggedInUser ? ' <span style="color:var(--success); font-size:11px;">(Aap)</span>' : ''}</td>
-        <td>
-          <button class="btn icon secondary" onclick="editUser('${u.username}')" title="Password Reset Karein">✏️</button>
-          <button class="btn icon danger" onclick="deleteUser('${u.username}')" title="Delete">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
-  }
+    if(t.dataset.act==='generateAllSlips'){
+      const targetMonth = document.getElementById('gen_target_month').value;
+      if(!targetMonth){ toast('Please select a valid month'); return; }
+      
+      state.employees.filter(e=>e.status!=='Left').forEach(emp => {
+        const existingIndex = state.salarySlips.findIndex(s => s.employeeId === emp.id && s.month === targetMonth);
+        const sal = calcSalary(emp.salary);
+        const loanDed = state.loans.filter(l => l.employeeId === emp.id && l.status === 'Approved').reduce((s,l)=>s+Number(l.amount||0),0);
+        const totalDed = sal.totalDed + loanDed;
+        const net = sal.gross - totalDed;
 
-  // NAVIGATION TABS
-  document.querySelectorAll('.fa-section-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.fa-section-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
-      const targetSec = document.getElementById('section-' + btn.getAttribute('data-section'));
-      if(targetSec) {
-        targetSec.classList.add('active');
-        if(btn.getAttribute('data-section') === 'reports') {
-          setDefaultReportDates();
-          filterReports();
+        const slipData = {
+          id: genId(),
+          employeeId: emp.id,
+          month: targetMonth,
+          basic: sal.basic,
+          hra: sal.hra,
+          education: sal.education,
+          market: sal.market,
+          conveyance: sal.conveyance,
+          bonus: sal.bonus,
+          compPfAdmin: sal.compPfAdmin,
+          compPf: sal.compPf,
+          compEsic: sal.compEsic,
+          gross: sal.gross,
+          tds: sal.tds,
+          insurance: sal.insurance,
+          lwf: sal.lwf,
+          empPf: sal.empPf,
+          empEsic: sal.empEsic,
+          loanDed: loanDed,
+          totalDed: sal.totalDed,
+          net: net,
+          dateGenerated: todayStr()
+        };
+
+        if(existingIndex >= 0){
+          state.salarySlips[existingIndex] = slipData;
+        } else {
+          state.salarySlips.push(slipData);
         }
-      }
-    });
-  });
+      });
 
-  // INVENTORY ITEM ADD & SEARCH
-  document.getElementById('toggleAddBtn').addEventListener('click', () => {
-    resetItemForm();
-    document.getElementById('addRow').classList.toggle('open');
-  });
-
-  document.getElementById('cancelNewBtn').addEventListener('click', () => {
-    resetItemForm();
-    document.getElementById('addRow').classList.remove('open');
-  });
-
-  function resetItemForm() {
-    document.getElementById('editItemId').value = '';
-    document.getElementById('newPcode').value = '';
-    document.getElementById('newName').value = '';
-    document.getElementById('newHsn').value = '';
-    document.getElementById('newCategory').value = '';
-    document.getElementById('newUnit').value = '';
-    document.getElementById('newOpening').value = '';
-    document.getElementById('newMrp').value = '';
-    document.getElementById('newPurchasePrice').value = '';
-    document.getElementById('newSellPrice').value = '';
-    document.getElementById('newExpiry').value = '';
-  }
-
-  document.getElementById('saveNewBtn').addEventListener('click', () => {
-    const editId = document.getElementById('editItemId').value;
-    const name = document.getElementById('newName').value.trim();
-    if(!name) return alert('Item Name zaroori hai!');
-
-    const itemData = {
-      id: editId || ('ITEM_' + Date.now()),
-      pcode: document.getElementById('newPcode').value.trim(),
-      name,
-      hsn: document.getElementById('newHsn').value.trim(),
-      category: document.getElementById('newCategory').value.trim(),
-      unit: document.getElementById('newUnit').value.trim(),
-      openingQty: parseInt(document.getElementById('newOpening').value) || 0,
-      usageQty: 0,
-      mrp: parseFloat(document.getElementById('newMrp').value) || 0,
-      purchasePrice: parseFloat(document.getElementById('newPurchasePrice').value) || 0,
-      sellPrice: parseFloat(document.getElementById('newSellPrice').value) || 0,
-      expiryDate: document.getElementById('newExpiry').value.trim()
-    };
-
-    if(editId) {
-      const idx = items.findIndex(i => i.id === editId);
-      if(idx !== -1) {
-        itemData.usageQty = items[idx].usageQty || 0;
-        items[idx] = itemData;
-      }
-    } else {
-      items.push(itemData);
+      saveAll();
+      toast(`Salary slips successfully generated & published for ${targetMonth}!`);
+      render();
+      return;
     }
 
-    saveDataToStorage();
-    renderInventory();
-    renderItemNameOptions();
-    resetItemForm();
-    document.getElementById('addRow').classList.remove('open');
-  });
-
-  window.editItem = function(itemId) {
-    const item = items.find(i => i.id === itemId);
-    if(!item) return;
-    document.getElementById('editItemId').value = item.id;
-    document.getElementById('newPcode').value = item.pcode || '';
-    document.getElementById('newName').value = item.name || '';
-    document.getElementById('newHsn').value = item.hsn || '';
-    document.getElementById('newCategory').value = item.category || '';
-    document.getElementById('newUnit').value = item.unit || '';
-    document.getElementById('newOpening').value = item.openingQty || 0;
-    document.getElementById('newMrp').value = item.mrp || 0;
-    document.getElementById('newPurchasePrice').value = item.purchasePrice || 0;
-    document.getElementById('newSellPrice').value = item.sellPrice || 0;
-    document.getElementById('newExpiry').value = item.expiryDate || '';
-    document.getElementById('addRow').classList.add('open');
-  };
-
-  window.deleteItem = function(itemId) {
-    if(confirm('Kya aap is item ko delete karna chahte hain?')) {
-      items = items.filter(i => i.id !== itemId);
-      saveDataToStorage();
-      renderInventory();
-      renderItemNameOptions();
+    if(t.dataset.delslip){
+      state.salarySlips = state.salarySlips.filter(s => s.id !== t.dataset.delslip);
+      saveAll();
+      toast('Salary slip unpublished / deleted.');
+      render();
+      return;
     }
-  };
 
-  document.getElementById('itemSearch').addEventListener('input', renderInventory);
-
-  function renderInventory() {
-    const q = document.getElementById('itemSearch').value.toLowerCase();
-    const filtered = items.filter(i => 
-      (i.name && i.name.toLowerCase().includes(q)) || 
-      (i.pcode && i.pcode.toLowerCase().includes(q)) ||
-      (i.hsn && i.hsn.toLowerCase().includes(q))
-    );
-    document.getElementById('inventoryTableBody').innerHTML = filtered.map((item, idx) => {
-      const balance = (item.openingQty || 0) - (item.usageQty || 0);
-      return `
-        <tr>
-          <td>${idx + 1}</td>
-          <td><b>${item.pcode || ''}</b></td>
-          <td>${item.name || ''}</td>
-          <td><b>${item.hsn || ''}</b></td>
-          <td>${item.category || ''}</td>
-          <td>${item.unit || ''}</td>
-          <td>${item.openingQty || 0}</td>
-          <td><b style="color:${balance < 0 ? 'red':'green'}">${balance}</b></td>
-          <td>₹${(item.mrp || 0).toFixed(2)}</td>
-          <td>₹${(item.purchasePrice || 0).toFixed(2)}</td>
-          <td>₹${(item.sellPrice || 0).toFixed(2)}</td>
-          <td>${item.expiryDate || ''}</td>
-          <td>
-            <button class="btn icon secondary" onclick="editItem('${item.id}')">✏️</button>
-            <button class="btn icon danger" onclick="deleteItem('${item.id}')">🗑️</button>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // INVENTORY CSV UPLOAD
-  document.getElementById('uploadInventoryCsvBtn').addEventListener('click', () => {
-    const fileInput = document.getElementById('inventoryCsvInput');
-    if(!fileInput.files || fileInput.files.length === 0) return alert('Kripya Inventory CSV file select karein!');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const lines = e.target.result.split('\n');
-      let count = 0;
-      for(let i=1; i<lines.length; i++) {
-        const line = lines[i].trim();
-        if(!line) continue;
-        const cols = line.split(',').map(v => v.replace(/^["']|["']$/g, '').trim());
-        if(cols.length >= 2) {
-          items.push({
-            id: 'ITEM_' + Date.now() + Math.random(),
-            pcode: cols[0] || '',
-            name: cols[1] || '',
-            hsn: cols[2] || '',
-            category: cols[3] || '',
-            unit: cols[4] || 'Pcs',
-            openingQty: parseInt(cols[5]) || 0,
-            usageQty: 0,
-            mrp: parseFloat(cols[6]) || 0,
-            purchasePrice: parseFloat(cols[7]) || 0,
-            sellPrice: parseFloat(cols[8]) || 0,
-            expiryDate: cols[9] || ''
-          });
-          count++;
-        }
-      }
-      saveDataToStorage();
-      renderInventory();
-      renderItemNameOptions();
-      alert(`✅ ${count} items successfully uploaded!`);
-      fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
-
-  // PURCHASE TAB
-  document.getElementById('purchaseItemInput').addEventListener('input', (e) => {
-    const selectedName = e.target.value.trim();
-    const matched = items.find(i => i.name && i.name.toLowerCase() === selectedName.toLowerCase());
-    if(matched) {
-      document.getElementById('purchasePriceInput').value = matched.purchasePrice || 0;
-    }
-  });
-
-  function processPurchaseEntry(itemName, qty, rate, customIsoDate = null, customDisplayDate = null) {
-    const itemIdx = items.findIndex(i => i.name && i.name.toLowerCase() === itemName.toLowerCase());
-    if(itemIdx === -1) return false;
-
-    items[itemIdx].openingQty = (parseInt(items[itemIdx].openingQty) || 0) + qty;
-    items[itemIdx].purchasePrice = rate;
-
-    const now = new Date();
-    const isoDate = customIsoDate ? customIsoDate : now.toISOString().split('T')[0];
-    const dateFormatted = customDisplayDate ? customDisplayDate : `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
-
-    purchases.unshift({
-      date: dateFormatted,
-      isoDate: isoDate,
-      itemName,
-      qty,
-      rate,
-      total: qty * rate
-    });
-    return true;
-  }
-
-  document.getElementById('addPurchaseStockBtn').addEventListener('click', () => {
-    const itemName = document.getElementById('purchaseItemInput').value.trim();
-    const qty = parseInt(document.getElementById('purchaseQtyInput').value) || 0;
-    const rate = parseFloat(document.getElementById('purchasePriceInput').value) || 0;
-
-    if(!itemName || qty <= 0) return alert('Sahi Item Name aur Quantity bharein!');
-
-    const success = processPurchaseEntry(itemName, qty, rate);
-    if(!success) return alert('Ye Item Inventory me nahi mila! Pehle Inventory me item banayein.');
-
-    saveDataToStorage();
-    renderInventory();
-    renderPurchases();
-
-    document.getElementById('purchaseItemInput').value = '';
-    document.getElementById('purchaseQtyInput').value = '';
-    document.getElementById('purchasePriceInput').value = '';
-    alert('✅ Stock Safaltapurvak Add Ho Gaya!');
-  });
-
-  document.getElementById('uploadPurchaseCsvBtn').addEventListener('click', () => {
-    const fileInput = document.getElementById('purchaseCsvInput');
-    if(!fileInput.files || fileInput.files.length === 0) return alert('Kripya Purchase CSV file select karein!');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const lines = e.target.result.split('\n');
-      let count = 0;
-      let missingItems = [];
-      for(let i=1; i<lines.length; i++) {
-        const line = lines[i].trim();
-        if(!line) continue;
-        const cols = line.split(',').map(v => v.replace(/^["']|["']$/g, '').trim());
-        if(cols.length >= 3) {
-          const itemName = cols[0];
-          const qty = parseInt(cols[1]) || 0;
-          const rate = parseFloat(cols[2]) || 0;
-          let pDate = cols[3] || null;
-          let isoDate = null;
-          let dispDate = null;
-
-          if(pDate) {
-            if(pDate.includes('-') && pDate.split('-')[0].length === 4) {
-              isoDate = pDate;
-              const parts = pDate.split('-');
-              dispDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-            } else {
-              dispDate = pDate;
-              const parts = pDate.split('-');
-              if(parts.length === 3) isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    if(t.dataset.act==='checkin'){
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(async (pos)=>{
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          let locationStr = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            if(data && data.address){
+              const sub = data.address.suburb || data.address.neighbourhood || data.address.city_district || '';
+              const city = data.address.city || data.address.town || data.address.state || '';
+              locationStr = `${sub ? sub + ', ' : ''}${city} (GPS Verified)`;
             }
-          }
-
-          const success = processPurchaseEntry(itemName, qty, rate, isoDate, dispDate);
-          if(success) count++;
-          else missingItems.push(itemName);
-        }
+          } catch(err){}
+          processAttendance(state.session.employeeId, todayStr(), new Date().toISOString(), 'checkin', locationStr);
+        }, ()=>{
+          processAttendance(state.session.employeeId, todayStr(), new Date().toISOString(), 'checkin', 'Raipur (GPS Fallback)');
+        });
+      } else {
+        processAttendance(state.session.employeeId, todayStr(), new Date().toISOString(), 'checkin', 'Raipur');
       }
-      saveDataToStorage();
-      renderInventory();
-      renderPurchases();
-      alert(`✅ ${count} purchase entries uploaded!` + (missingItems.length ? `\n⚠️ Not found: ${[...new Set(missingItems)].join(', ')}` : ''));
-      fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
-
-  function renderPurchases() {
-    document.getElementById('purchaseHistoryBody').innerHTML = purchases.map(p => `
-      <tr>
-        <td>${p.date}</td>
-        <td><b>${p.itemName}</b></td>
-        <td>${p.qty}</td>
-        <td>₹${p.rate.toFixed(2)}</td>
-        <td><b>₹${p.total.toFixed(2)}</b></td>
-      </tr>
-    `).join('');
-  }
-
-  // CUSTOMERS
-  document.getElementById('toggleAddCustBtn').addEventListener('click', () => {
-    resetCustForm();
-    document.getElementById('addCustRow').classList.toggle('open');
-  });
-
-  document.getElementById('cancelCustBtn').addEventListener('click', () => {
-    resetCustForm();
-    document.getElementById('addCustRow').classList.remove('open');
-  });
-
-  function resetCustForm() {
-    document.getElementById('editCustId').value = '';
-    document.getElementById('newCustMobile').value = '';
-    document.getElementById('newCustName').value = '';
-    document.getElementById('newCustCode').value = '';
-    document.getElementById('newCustAddress').value = '';
-  }
-
-  document.getElementById('saveCustBtn').addEventListener('click', () => {
-    const editId = document.getElementById('editCustId').value;
-    const name = document.getElementById('newCustName').value.trim();
-    const mobile = document.getElementById('newCustMobile').value.trim();
-    if(!name) return alert('Customer Name zaroori hai!');
-
-    const custData = {
-      id: editId || ('CUST_' + Date.now()),
-      mobile,
-      name,
-      code: document.getElementById('newCustCode').value.trim(),
-      address: document.getElementById('newCustAddress').value.trim()
-    };
-
-    if(editId) {
-      const idx = customers.findIndex(c => c.id === editId);
-      if(idx !== -1) customers[idx] = custData;
-    } else {
-      customers.push(custData);
+      return;
     }
 
-    saveDataToStorage();
-    renderCustomers();
-    renderCustomerOptions();
-    resetCustForm();
-    document.getElementById('addCustRow').classList.remove('open');
-  });
-
-  window.editCustomer = function(id) {
-    const c = customers.find(x => x.id === id);
-    if(!c) return;
-    document.getElementById('editCustId').value = c.id;
-    document.getElementById('newCustMobile').value = c.mobile || '';
-    document.getElementById('newCustName').value = c.name || '';
-    document.getElementById('newCustCode').value = c.code || '';
-    document.getElementById('newCustAddress').value = c.address || '';
-    document.getElementById('addCustRow').classList.add('open');
-  };
-
-  window.deleteCustomer = function(id) {
-    if(confirm('Kya aap is customer ko delete karna chahte hain?')) {
-      customers = customers.filter(x => x.id !== id);
-      saveDataToStorage();
-      renderCustomers();
-      renderCustomerOptions();
-    }
-  };
-
-  document.getElementById('custSearch').addEventListener('input', renderCustomers);
-
-  function renderCustomers() {
-    const q = document.getElementById('custSearch').value.toLowerCase();
-    const filtered = customers.filter(c => 
-      (c.name && c.name.toLowerCase().includes(q)) ||
-      (c.mobile && c.mobile.toLowerCase().includes(q)) ||
-      (c.code && c.code.toLowerCase().includes(q))
-    );
-    document.getElementById('customersTableBody').innerHTML = filtered.map((c, idx) => `
-      <tr>
-        <td><input type="checkbox" class="cust-checkbox" data-id="${c.id}"></td>
-        <td>${idx + 1}</td>
-        <td><b>${c.mobile || ''}</b></td>
-        <td>${c.name || ''}</td>
-        <td>${c.code || ''}</td>
-        <td>${c.address || ''}</td>
-        <td>
-          <button class="btn icon secondary" onclick="editCustomer('${c.id}')">✏️</button>
-          <button class="btn icon danger" onclick="deleteCustomer('${c.id}')">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  document.getElementById('uploadCustCsvBtn').addEventListener('click', () => {
-    const fileInput = document.getElementById('custCsvInput');
-    if(!fileInput.files || fileInput.files.length === 0) return alert('Kripya Customer CSV file select karein!');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const lines = e.target.result.split('\n');
-      let count = 0;
-      for(let i=1; i<lines.length; i++) {
-        const line = lines[i].trim();
-        if(!line) continue;
-        const cols = line.split(',').map(v => v.replace(/^["']|["']$/g, '').trim());
-        if(cols.length >= 2) {
-          customers.push({
-            id: 'CUST_' + Date.now() + Math.random(),
-            mobile: cols[0] || '',
-            name: cols[1] || '',
-            code: cols[2] || '',
-            address: cols[3] || ''
-          });
-          count++;
-        }
-      }
-      saveDataToStorage();
-      renderCustomers();
-      renderCustomerOptions();
-      alert(`✅ ${count} customers successfully uploaded!`);
-      fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
-
-  document.getElementById('exportCustCsvBtn').addEventListener('click', () => {
-    let csv = 'Mobile,Name,Code,Address\n';
-    customers.forEach(c => {
-      csv += `"${c.mobile || ''}","${c.name || ''}","${c.code || ''}","${c.address || ''}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'customers_list.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  // RENDER AUTOCOMPLETE OPTIONS FOR BILLING (Name & Mobile Search)
-  function renderCustomerOptions() {
-    let mobileOpts = '';
-    customers.forEach(c => {
-      if(c.mobile) mobileOpts += `<option value="${c.mobile}">${c.name || ''}</option>`;
-    });
-    let dList = document.getElementById('customerMobileOptions');
-    if(!dList) {
-      dList = document.createElement('datalist');
-      dList.id = 'customerMobileOptions';
-      document.body.appendChild(dList);
-    }
-    dList.innerHTML = mobileOpts;
-
-    let nameOpts = '';
-    customers.forEach(c => {
-      if(c.name) nameOpts += `<option value="${c.name}">Mob: ${c.mobile || 'N/A'}</option>`;
-    });
-    let nList = document.getElementById('customerNameOptions');
-    if(!nList) {
-      nList = document.createElement('datalist');
-      nList.id = 'customerNameOptions';
-      document.body.appendChild(nList);
-    }
-    nList.innerHTML = nameOpts;
-  }
-
-  function renderItemNameOptions() {
-    let opts = '';
-    items.forEach(i => {
-      opts += `<option value="${i.name}">MRP: ₹${i.mrp} | Stock: ${(i.openingQty||0)-(i.usageQty||0)}</option>`;
-    });
-    document.getElementById('itemNameOptions').innerHTML = opts;
-  }
-
-  // BILLING CUSTOMER AUTO-FILL LOGIC (Mobile OR Name selection)
-  document.getElementById('custMobile').addEventListener('input', (e) => {
-    const val = e.target.value.trim();
-    const found = customers.find(c => c.mobile === val);
-    if(found) {
-      document.getElementById('custName').value = found.name || '';
-      document.getElementById('custCode').value = found.code || '';
-    }
-  });
-
-  document.getElementById('custName').addEventListener('input', (e) => {
-    const val = e.target.value.trim().toLowerCase();
-    const found = customers.find(c => c.name && c.name.toLowerCase() === val);
-    if(found) {
-      document.getElementById('custMobile').value = found.mobile || '';
-      document.getElementById('custCode').value = found.code || '';
-    }
-  });
-
-  // BILLING ROWS MANAGEMENT
-  function addBillLine(itemData = null) {
-    const tbody = document.getElementById('billLinesBody');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" class="b-item" list="itemNameOptions" placeholder="Item Name Type Karein" value="${itemData ? itemData.name : ''}"></td>
-      <td><input type="text" class="b-hsn" placeholder="HSN" value="${itemData ? itemData.hsn : ''}" readonly style="background:#f1f5f9;"></td>
-      <td class="no-print"><input type="text" class="b-stock" value="${itemData ? itemData.stock : 0}" readonly style="background:#f1f5f9; width:70px;"></td>
-      <td><input type="number" class="b-qty" value="${itemData ? itemData.qty : 1}" style="width:70px;"></td>
-      <td><input type="number" class="b-rate" value="${itemData ? itemData.rate : 0}" style="width:100px;"></td>
-      <td><input type="text" class="b-total" value="0.00" readonly style="background:#f1f5f9; width:100px; font-weight:bold;"></td>
-      <td class="no-print"><button class="btn icon danger remove-line">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-
-    const itemInput = tr.querySelector('.b-item');
-    const hsnInput = tr.querySelector('.b-hsn');
-    const stockInput = tr.querySelector('.b-stock');
-    const qtyInput = tr.querySelector('.b-qty');
-    const rateInput = tr.querySelector('.b-rate');
-
-    itemInput.addEventListener('input', () => {
-      const name = itemInput.value.trim();
-      const matched = items.find(i => i.name && i.name.toLowerCase() === name.toLowerCase());
-      if(matched) {
-        hsnInput.value = matched.hsn || '';
-        const bal = (matched.openingQty || 0) - (matched.usageQty || 0);
-        stockInput.value = bal;
-        rateInput.value = matched.sellPrice || 0;
-        calculateBillTotals();
-      }
-    });
-
-    qtyInput.addEventListener('input', calculateBillTotals);
-    rateInput.addEventListener('input', calculateBillTotals);
-    tr.querySelector('.remove-line').addEventListener('click', () => {
-      tr.remove();
-      calculateBillTotals();
-    });
-
-    if(itemData) {
-      const matched = items.find(i => i.name && i.name.toLowerCase() === itemData.name.toLowerCase());
-      if(matched) {
-        hsnInput.value = matched.hsn || '';
-        stockInput.value = (matched.openingQty || 0) - (matched.usageQty || 0);
-      }
-      calculateBillTotals();
-    }
-  }
-
-  document.getElementById('addLineBtn').addEventListener('click', () => addBillLine());
-
-  function calculateBillTotals() {
-    let subTotal = 0;
-    document.querySelectorAll('#billLinesBody tr').forEach(tr => {
-      const qty = parseFloat(tr.querySelector('.b-qty').value) || 0;
-      const rate = parseFloat(tr.querySelector('.b-rate').value) || 0;
-      const total = qty * rate;
-      tr.querySelector('.b-total').value = total.toFixed(2);
-      subTotal += total;
-    });
-
-    document.getElementById('billSubTotal').value = subTotal.toFixed(2);
-    const disc = parseFloat(document.getElementById('billDiscount').value) || 0;
-    const gst = parseFloat(document.getElementById('billGst').value) || 0;
-
-    let net = subTotal - (subTotal * disc / 100);
-    net += (net * gst / 100);
-    document.getElementById('grandTotalVal').innerText = net.toFixed(2);
-  }
-
-  document.getElementById('billDiscount').addEventListener('input', calculateBillTotals);
-  document.getElementById('billGst').addEventListener('input', calculateBillTotals);
-
-  // CLEAR BILL / NEW BILL BUTTON
-  document.getElementById('clearBillBtn').addEventListener('click', () => {
-    if(confirm('Kya aap current bill ko clear karna chahte hain?')) {
-      resetBillingForm();
-    }
-  });
-
-  function resetBillingForm() {
-    document.getElementById('custMobile').value = '';
-    document.getElementById('custName').value = '';
-    document.getElementById('custCode').value = '';
-    document.getElementById('billDiscount').value = '0';
-    document.getElementById('billGst').value = '0';
-    document.getElementById('billLinesBody').innerHTML = '';
-    addBillLine();
-    calculateBillTotals();
-  }
-
-  // SAVE BILL & AUTO-SAVE NEW CUSTOMER TO CUSTOMERS TAB
-  document.getElementById('saveBillBtn').addEventListener('click', () => {
-    const custName = document.getElementById('custName').value.trim();
-    const custMobile = document.getElementById('custMobile').value.trim();
-    const custCode = document.getElementById('custCode').value.trim();
-
-    if(!custName) return alert('Kripya Customer Name darj karein!');
-
-    const rows = document.querySelectorAll('#billLinesBody tr');
-    if(rows.length === 0) return alert('Kam se kam ek item add karein!');
-
-    let existingCustIndex = customers.findIndex(c => 
-      (c.name && c.name.toLowerCase() === custName.toLowerCase()) || 
-      (custMobile && c.mobile === custMobile)
-    );
-
-    if(existingCustIndex === -1) {
-      const newCust = {
-        id: 'CUST_' + Date.now(),
-        mobile: custMobile || '',
-        name: custName,
-        code: custCode || '',
-        address: ''
-      };
-      customers.push(newCust);
-    } else {
-      if(custMobile && !customers[existingCustIndex].mobile) customers[existingCustIndex].mobile = custMobile;
-      if(custCode && !customers[existingCustIndex].code) customers[existingCustIndex].code = custCode;
+    if(t.dataset.act==='checkout'){
+      processAttendance(state.session.employeeId, todayStr(), new Date().toISOString(), 'checkout');
+      return;
     }
 
-    saveDataToStorage();
-    renderCustomers();
-    renderCustomerOptions();
+    if(t.dataset.act==='openEmpModal'){ openEmpModal(null); return; }
+    if(t.dataset.act==='openLeaveModal'){ openLeaveModal(); return; }
+    if(t.dataset.act==='openLoanModal'){ openLoanModal(); return; }
+    if(t.dataset.act==='openRegModal'){ openRegModal(); return; }
+    if(t.dataset.act==='openAdminApplyLeaveModal'){ openAdminApplyLeaveModal(); return; }
+    if(t.dataset.act==='openAdminApplyLoanModal'){ openAdminApplyLoanModal(); return; }
+    if(t.dataset.act==='openAdminApplyRegModal'){ openAdminApplyRegModal(); return; }
+    if(t.dataset.act==='openAdminApplyShiftModal'){ openAdminApplyShiftModal(); return; }
+    if(t.dataset.act==='closeModal'){ closeModal(); return; }
+    if(t.dataset.edit){ openEmpModal(state.employees.find(x=>x.id===t.dataset.edit)); return; }
 
-    let lineItems = [];
+    if(t.dataset.act==='submitLeave'){
+      const fromDate = document.getElementById('modal_fdate').value;
+      const toDate = document.getElementById('modal_tdate').value;
+      const reason = document.getElementById('modal_lreason').value;
+      if(!reason){ toast('Please enter reason'); return; }
+      state.requests.push({ id: genId(), employeeId: state.session.employeeId, fromDate, toDate, reason, status:'Pending' });
+      saveAll(); closeModal(); toast('Leave application submitted successfully!'); render();
+      return;
+    }
 
-    rows.forEach(tr => {
-      const itemName = tr.querySelector('.b-item').value.trim();
-      const hsn = tr.querySelector('.b-hsn').value.trim();
-      const qty = parseFloat(tr.querySelector('.b-qty').value) || 0;
-      const rate = parseFloat(tr.querySelector('.b-rate').value) || 0;
-      const total = parseFloat(tr.querySelector('.b-total').value) || 0;
+    if(t.dataset.act==='submitLoan'){
+      const fromDate = document.getElementById('modal_lfdate').value;
+      const toDate = document.getElementById('modal_ltdate').value;
+      const amount = Number(document.getElementById('modal_lamount').value);
+      const reason = document.getElementById('modal_lreason2').value;
+      if(!amount){ toast('Please enter loan amount'); return; }
+      state.loans.push({ id: genId(), employeeId: state.session.employeeId, fromDate, toDate, amount, reason, status:'Pending' });
+      saveAll(); closeModal(); toast('Loan request submitted successfully!'); render();
+      return;
+    }
 
-      if(itemName && qty > 0) {
-        lineItems.push({ name: itemName, hsn, qty, rate, total });
-        const itemIdx = items.findIndex(i => i.name && i.name.toLowerCase() === itemName.toLowerCase());
-        if(itemIdx !== -1) {
-          items[itemIdx].usageQty = (items[itemIdx].usageQty || 0) + qty;
-        }
-      }
-    });
+    if(t.dataset.act==='submitReg'){
+      const date = document.getElementById('modal_rgdate').value;
+      const requestedStatus = document.getElementById('modal_rgstatus').value;
+      const reason = document.getElementById('modal_rgreason').value;
+      if(!reason){ toast('Please enter reason'); return; }
+      state.regularizations.push({ id: genId(), employeeId: state.session.employeeId, date, requestedStatus, reason, status:'Pending' });
+      saveAll(); closeModal(); toast('Regularization request submitted successfully!'); render();
+      return;
+    }
 
-    if(lineItems.length === 0) return alert('Sahi items bharein!');
+    if(t.dataset.act==='adminSubmitLeave'){
+      const employeeId = document.getElementById('adm_lemp').value;
+      const fromDate = document.getElementById('adm_lf').value;
+      const toDate = document.getElementById('adm_lt').value;
+      const reason = document.getElementById('adm_lrs').value;
+      state.requests.push({ id: genId(), employeeId, fromDate, toDate, reason, status:'Approved' });
+      saveAll(); closeModal(); toast('Leave applied and auto-approved for employee!'); render();
+      return;
+    }
 
-    const grandTotal = parseFloat(document.getElementById('grandTotalVal').innerText) || 0;
-    const now = new Date();
-    const todayStr = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
-    const todayISO = now.toISOString().split('T')[0];
+    if(t.dataset.act==='adminSubmitLoan'){
+      const employeeId = document.getElementById('adm_loanemp').value;
+      const fromDate = document.getElementById('adm_loanf').value;
+      const toDate = document.getElementById('adm_loant').value;
+      const amount = Number(document.getElementById('adm_loanamt').value);
+      const reason = document.getElementById('adm_loanrs').value;
+      if(!amount){ toast('Please enter amount'); return; }
+      state.loans.push({ id: genId(), employeeId, fromDate, toDate, amount, reason, status:'Approved' });
+      saveAll(); closeModal(); toast('Loan applied and auto-approved for employee!'); render();
+      return;
+    }
 
-    const billObj = {
-      billNo: currentBillNo,
-      date: todayStr,
-      isoDate: todayISO,
-      mobile: custMobile,
-      code: custCode,
-      name: custName,
-      subTotal: document.getElementById('billSubTotal').value,
-      discount: document.getElementById('billDiscount').value,
-      gst: document.getElementById('billGst').value,
-      grandTotal: grandTotal.toFixed(2),
-      items: lineItems
-    };
+    if(t.dataset.act==='adminSubmitReg'){
+      const employeeId = document.getElementById('adm_regemp').value;
+      const date = document.getElementById('adm_regdate').value;
+      const requestedStatus = document.getElementById('adm_regstatus').value;
+      const reason = document.getElementById('adm_regrs').value;
+      state.regularizations.push({ id: genId(), employeeId, date, requestedStatus, reason, status:'Approved' });
+      saveAll(); closeModal(); toast('Regularization applied and auto-approved for employee!'); render();
+      return;
+    }
 
-    bills.unshift(billObj);
-    currentBillNo++;
-    saveDataToStorage();
-    renderInventory();
-    renderBillsHistory();
+    if(t.dataset.act==='adminSubmitShift'){
+      const employeeId = document.getElementById('adm_semp').value;
+      const shiftName = document.getElementById('adm_sname').value;
+      const weekoff = document.getElementById('adm_woff').value;
+      const date = document.getElementById('adm_sdate').value;
+      state.shifts.push({ id: genId(), employeeId, shiftName, timing: shiftName.includes('Morning')?'07:00 AM - 04:00 PM':'10:00 AM - 07:00 PM', date });
+      state.weekoffs.push({ id: genId(), employeeId, day: weekoff, date });
+      saveAll(); closeModal(); toast('Shift & Week-off updated successfully!'); render();
+      return;
+    }
 
-    alert(`✅ Bill No #${billObj.billNo} Safalpurvak Save Ho Gaya!\n(Customer data 'Customers' tab mein bhi save ho gaya hai)`);
-    window.print();
+    if(t.dataset.act==='saveEmp'){
+      const id = t.dataset.id;
+      const name = document.getElementById('m_name').value;
+      const role = document.getElementById('m_role').value;
+      const designation = document.getElementById('m_desig').value;
+      const passInput = document.getElementById('m_pass') ? document.getElementById('m_pass').value : null;
 
-    resetBillingForm();
-    document.getElementById('currentBillNoDisplay').innerText = currentBillNo;
-  });
+      const basic = Number(document.getElementById('m_basic').value);
+      const hra = Number(document.getElementById('m_hra').value);
+      const education = Number(document.getElementById('m_education').value);
+      const market = Number(document.getElementById('m_market').value);
+      const conveyance = Number(document.getElementById('m_conveyance').value);
+      const bonus = Number(document.getElementById('m_bonus').value);
+      const compPfAdmin = Number(document.getElementById('m_compPfAdmin').value);
+      const compPf = Number(document.getElementById('m_compPf').value);
+      const compEsic = Number(document.getElementById('m_compEsic').value);
 
-  function renderBillsHistory() {
-    document.getElementById('billsHistoryBody').innerHTML = bills.map(b => `
-      <tr>
-        <td><b>#${b.billNo}</b></td>
-        <td>${b.date}</td>
-        <td>${b.mobile || ''}</td>
-        <td>${b.code || ''}</td>
-        <td><b>${b.name || ''}</b></td>
-        <td><b>₹${b.grandTotal}</b></td>
-        <td>
-          <button class="btn icon secondary" onclick="printExistingBill(${b.billNo})">🖨️</button>
-          <button class="btn icon danger" onclick="deleteBill(${b.billNo})">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
-  }
+      const tds = Number(document.getElementById('m_tds').value);
+      const insurance = Number(document.getElementById('m_insurance').value);
+      const lwf = Number(document.getElementById('m_lwf').value);
+      const empPf = Number(document.getElementById('m_empPf').value);
+      const empEsic = Number(document.getElementById('m_empEsic').value);
 
-  window.printExistingBill = function(bNo) {
-    const b = bills.find(x => x.billNo === bNo);
-    if(!b) return;
-    document.getElementById('currentBillNoDisplay').innerText = b.billNo;
-    document.getElementById('custMobile').value = b.mobile || '';
-    document.getElementById('custName').value = b.name || '';
-    document.getElementById('custCode').value = b.code || '';
-    document.getElementById('billDiscount').value = b.discount || 0;
-    document.getElementById('billGst').value = b.gst || 0;
-
-    const tbody = document.getElementById('billLinesBody');
-    tbody.innerHTML = '';
-    b.items.forEach(itm => addBillLine(itm));
-    window.print();
-  };
-
-  window.deleteBill = function(bNo) {
-    if(confirm(`Kya aap Bill #${bNo} delete karna chahte hain?`)) {
-      const b = bills.find(x => x.billNo === bNo);
-      if(b) {
-        b.items.forEach(itm => {
-          const itemIdx = items.findIndex(i => i.name && i.name.toLowerCase() === itm.name.toLowerCase());
-          if(itemIdx !== -1) {
-            items[itemIdx].usageQty = Math.max(0, (items[itemIdx].usageQty || 0) - itm.qty);
-          }
+      let emp = state.employees.find(x=>x.id===id);
+      if(emp){
+        emp.name = name;
+        emp.role = role;
+        emp.designation = designation;
+        emp.salary = { basic, hra, education, market, conveyance, bonus, compPfAdmin, compPf, compEsic, tds, insurance, lwf, empPf, empEsic };
+      } else {
+        const newEmpId = document.getElementById('m_empid').value || ('EMP'+Math.floor(100+Math.random()*900));
+        state.employees.push({
+          id: newEmpId,
+          name, role, designation,
+          pass: passInput || '1234',
+          status: 'Active',
+          department: 'General',
+          managerId: 'EMP001',
+          salary: { basic, hra, education, market, conveyance, bonus, compPfAdmin, compPf, compEsic, tds, insurance, lwf, empPf, empEsic }
         });
       }
-      bills = bills.filter(x => x.billNo !== bNo);
-      saveDataToStorage();
-      renderInventory();
-      renderBillsHistory();
+      saveAll(); closeModal(); toast('Employee details updated successfully!'); render();
+      return;
     }
+
+    if(t.dataset.appr || t.dataset.rej){
+      const req = state.requests.find(r=>r.id===(t.dataset.appr||t.dataset.rej));
+      if(req){ req.status = t.dataset.appr ? 'Approved' : 'Rejected'; saveAll(); toast('Leave status updated'); render(); }
+      return;
+    }
+    if(t.dataset.apprloan || t.dataset.rejloan){
+      const loan = state.loans.find(l=>l.id===(t.dataset.apprloan||t.dataset.rejloan));
+      if(loan){ loan.status = t.dataset.apprloan ? 'Approved' : 'Rejected'; saveAll(); toast('Loan status updated'); render(); }
+      return;
+    }
+    if(t.dataset.apprreg || t.dataset.rejreg){
+      const rg = state.regularizations.find(r=>r.id===(t.dataset.apprreg||t.dataset.rejreg));
+      if(rg){ rg.status = t.dataset.apprreg ? 'Approved' : 'Rejected'; saveAll(); toast('Regularization status updated'); render(); }
+      return;
+    }
+
+    if(t.id==='modalBack') closeModal();
   };
-
-  // REPORTS LOGIC
-  function setDefaultReportDates() {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    
-    document.getElementById('reportFromDate').value = firstDay.toISOString().split('T')[0];
-    document.getElementById('reportToDate').value = today.toISOString().split('T')[0];
-  }
-
-  function filterReports() {
-    const fromVal = document.getElementById('reportFromDate').value;
-    const toVal = document.getElementById('reportToDate').value;
-
-    if(!fromVal || !toVal) return;
-
-    // Filter Sales
-    const filteredSales = bills.filter(b => {
-      let bIso = b.isoDate;
-      if(!bIso && b.date) {
-        const parts = b.date.split('-');
-        if(parts.length === 3) bIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-      return bIso && bIso >= fromVal && bIso <= toVal;
-    });
-
-    let totalSalesAmt = 0;
-    document.getElementById('reportSalesBody').innerHTML = filteredSales.map(s => {
-      totalSalesAmt += parseFloat(s.grandTotal) || 0;
-      return `
-        <tr>
-          <td><b>#${s.billNo}</b></td>
-          <td>${s.date}</td>
-          <td>${s.name || ''}</td>
-          <td><b>₹${s.grandTotal}</b></td>
-        </tr>
-      `;
-    }).join('') || `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Koi sales data nahi mila</td></tr>`;
-
-    document.getElementById('reportTotalSales').innerText = `₹${totalSalesAmt.toFixed(2)}`;
-
-    // Filter Purchases
-    const filteredPurchases = purchases.filter(p => {
-      let pIso = p.isoDate;
-      if(!pIso && p.date) {
-        const parts = p.date.split('-');
-        if(parts.length === 3) pIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-      return pIso && pIso >= fromVal && pIso <= toVal;
-    });
-
-    let totalPurchaseAmt = 0;
-    document.getElementById('reportPurchaseBody').innerHTML = filteredPurchases.map(p => {
-      totalPurchaseAmt += parseFloat(p.total) || 0;
-      return `
-        <tr>
-          <td>${p.date}</td>
-          <td><b>${p.itemName}</b></td>
-          <td>${p.qty}</td>
-          <td>₹${p.rate.toFixed(2)}</td>
-          <td><b>₹${p.total.toFixed(2)}</b></td>
-        </tr>
-      `;
-    }).join('') || `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Koi purchase data nahi mila</td></tr>`;
-
-    document.getElementById('reportTotalPurchase').innerText = `₹${totalPurchaseAmt.toFixed(2)}`;
-
-    // Net Profit
-    const netProfit = totalSalesAmt - totalPurchaseAmt;
-    const profitEl = document.getElementById('reportNetProfit');
-    profitEl.innerText = `₹${netProfit.toFixed(2)}`;
-    profitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
-  }
-
-  document.getElementById('filterReportBtn').addEventListener('click', filterReports);
-
-  document.getElementById('printReportBtn').addEventListener('click', () => {
-    document.body.classList.add('printing-report');
-    window.print();
-    document.body.classList.remove('printing-report');
-  });
-
-  // FIXED: Export Detailed Sales SKU report — now handles bills with missing/
-  // malformed "items" arrays gracefully instead of silently crashing, escapes
-  // quotes inside customer/item names, and reports any real error via alert()
-  // so a failed export is never silent again.
-  document.getElementById('exportDetailedExcelBtn').addEventListener('click', () => {
-    try {
-      const fromVal = document.getElementById('reportFromDate').value;
-      const toVal = document.getElementById('reportToDate').value;
-
-      const filteredSales = bills.filter(b => {
-        let bIso = b.isoDate;
-        if(!bIso && b.date) {
-          const parts = b.date.split('-');
-          if(parts.length === 3) bIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        return bIso && bIso >= fromVal && bIso <= toVal;
-      });
-
-      if(filteredSales.length === 0) {
-        alert('Export karne ke liye selected date range me koi sales data available nahi hai!');
-        return;
-      }
-
-      const esc = (v) => String(v === undefined || v === null ? '' : v).replace(/"/g, '""');
-
-      let csv = 'BillNo,Date,Customer,ItemName,HSN,Qty,Rate,Total\n';
-      filteredSales.forEach(b => {
-        const lineItems = Array.isArray(b.items) ? b.items : [];
-        if(lineItems.length === 0) {
-          // Bill has no valid items array (e.g. old/restored data) — still export the bill-level row
-          csv += `"${esc(b.billNo)}","${esc(b.date)}","${esc(b.name)}","","","","","${esc(b.grandTotal)}"\n`;
-        } else {
-          lineItems.forEach(i => {
-            csv += `"${esc(b.billNo)}","${esc(b.date)}","${esc(b.name)}","${esc(i.name)}","${esc(i.hsn)}","${esc(i.qty)}","${esc(i.rate)}","${esc(i.total)}"\n`;
-          });
-        }
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `detailed_sales_report_${fromVal}_to_${toVal}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch(err) {
-      console.error('Sales export error:', err);
-      alert('❌ Sales report export me error aayi: ' + err.message);
-    }
-  });
-
-  document.getElementById('exportPurchaseReportBtn').addEventListener('click', () => {
-    const fromVal = document.getElementById('reportFromDate').value;
-    const toVal = document.getElementById('reportToDate').value;
-
-    const filteredPurchases = purchases.filter(p => {
-      let pIso = p.isoDate;
-      if(!pIso && p.date) {
-        const parts = p.date.split('-');
-        if(parts.length === 3) pIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-      return pIso && pIso >= fromVal && pIso <= toVal;
-    });
-
-    if(filteredPurchases.length === 0) return alert('Export karne ke liye selected date range me koi purchase data available nahi hai!');
-
-    let csv = 'Date,ItemName,Qty,Rate,Total\n';
-    filteredPurchases.forEach(p => {
-      csv += `"${p.date}","${p.itemName}","${p.qty}","${p.rate}","${p.total}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `purchase_report_${fromVal}_to_${toVal}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  // BACKUP & RESTORE
-  document.getElementById('downloadFullBackupJsonBtn').addEventListener('click', () => {
-    const backupData = { items, bills, customers, purchases, currentBillNo, companyLogo };
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `billing_system_backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  document.getElementById('restoreFullBackupJsonBtn').addEventListener('click', () => {
-    const fileInput = document.getElementById('restoreJsonFileInput');
-    if(!fileInput.files || fileInput.files.length === 0) return alert('Kripya Backup JSON file select karein!');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if(data.items) items = data.items;
-        if(data.bills) bills = data.bills;
-        if(data.customers) customers = data.customers;
-        if(data.purchases) purchases = data.purchases;
-        if(data.currentBillNo) currentBillNo = data.currentBillNo;
-        if(data.companyLogo) {
-          companyLogo = data.companyLogo;
-          localStorage.setItem(LOGO_STORAGE_KEY, companyLogo);
-        }
-
-        saveDataToStorage();
-        initApp();
-        alert('✅ System Backup Safaltapurvak Restore Ho Gaya!');
-      } catch(err) {
-        alert('❌ Invalid JSON file!');
-      }
-    };
-    reader.readAsText(file);
-  });
-
-  // INITIALIZE APP
-  function initApp() {
-    loadDataFromStorage();
-    document.getElementById('currentBillNoDisplay').innerText = currentBillNo;
-    renderLogo();
-    renderInventory();
-    renderCustomers();
-    renderPurchases();
-    renderBillsHistory();
-    renderCustomerOptions();
-    renderItemNameOptions();
-    renderUsers();
-    setDefaultReportDates();
-    filterReports();
-
-    const tbody = document.getElementById('billLinesBody');
-    if(tbody.children.length === 0) {
-      addBillLine();
-    }
-  }
-
-  // AUTH BOOTSTRAP: create a default admin user on first-ever run, then
-  // either auto-resume a saved session or show the login screen.
-  (async function bootAuth() {
-    await ensureDefaultUser();
-    const savedUser = localStorage.getItem(LOGGED_IN_USER_KEY);
-    const stillValid = savedUser && users.find(u => u.username === savedUser);
-    if (stillValid) {
-      loggedInUser = savedUser;
-      showApp();
-    } else {
-      localStorage.removeItem(LOGGED_IN_USER_KEY);
-      showLoginScreen();
-    }
-  })();
-})();
-
-// Register service worker so the app installs and works offline.
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch((err) => {
-      console.error('Service worker registration failed:', err);
-    });
-  });
 }
-</script>
 
+function processAttendance(empId, today, nowIso, act, loc='Raipur'){
+  let rec = state.attendance.find(a=>a.employeeId===empId && a.date===today);
+  if(act==='checkin'){
+    if(!rec){
+      state.attendance.push({ id: genId(), employeeId: empId, date: today, checkIn: nowIso, checkOut: null, location: loc, status:'Present' });
+      toast('Checked In at ' + loc);
+    }
+  } else {
+    if(rec && !rec.checkOut){
+      rec.checkOut = nowIso;
+      rec.status = calcAttendanceStatus(rec.checkIn, nowIso);
+      toast('Checked Out Successfully! Status marked as ' + rec.status);
+    }
+  }
+  saveAll(); render();
+}
+
+initData(); render();
+</script>
+<div id="modalRoot"></div>
 </body>
 </html>
